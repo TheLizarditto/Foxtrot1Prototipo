@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://b4nn81kl12ga3"]
+
+[ext_resource type="PackedScene" uid="uid://dv85vfyrw6o4c" path="res://Scenes/tablero.tscn" id="1_h0ha0"]
+
+[node name="Main" type="Node2D" unique_id=1545272933]
+
+[node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
+
+[node name="Camera2D" type="Camera2D" parent="Tablero" unique_id=496038153]
+zoom = Vector2(2, 2)

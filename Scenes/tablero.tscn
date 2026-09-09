@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://dv85vfyrw6o4c"]
+
+[ext_resource type="Script" uid="uid://sny37hueuh43" path="res://Scripts/tablero.gd" id="1_vc5lm"]
+[ext_resource type="Texture2D" uid="uid://db1v8ogvr0j8w" path="res://Assets/cuadro.png" id="2_nf6t1"]
+
+[node name="Tablero" type="Node2D" unique_id=231058287]
+script = ExtResource("1_vc5lm")
+
+[node name="Cuadro" type="Sprite2D" parent="." unique_id=1469168543]
+texture = ExtResource("2_nf6t1")
