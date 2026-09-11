@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://crwd6dpdbts15"]
+
+[ext_resource type="Texture2D" uid="uid://cdi54qots0dbd" path="res://Assets/caballero.png" id="1_ksl8w"]
+
+[node name="Personaje" type="Node2D" unique_id=466476145]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=94041577]
+scale = Vector2(0.5781251, 0.5546875)
+texture = ExtResource("1_ksl8w")
