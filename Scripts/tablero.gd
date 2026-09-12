@@ -20,6 +20,12 @@ func _obtener_inicio() -> Vector2:
 	var inicio := -tamano_tablero / 2.0 + tamano_celda / 2.0
 	
 	return inicio
+
+func obtener_centro_tablero() -> Vector2:
+	return Vector2(
+		floori(columnas / 2.0),
+		floori(filas / 2.0)
+	)
 	
 func _generar_tablero() -> void:
 	
