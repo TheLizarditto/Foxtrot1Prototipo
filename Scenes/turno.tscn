@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b4c31gckogab5"]
+
+[ext_resource type="Script" uid="uid://bchnjeq43k8ey" path="res://Scripts/turnos.gd" id="1_ip8jh"]
+
+[node name="Turno" type="Node2D" unique_id=1298612257]
+script = ExtResource("1_ip8jh")
