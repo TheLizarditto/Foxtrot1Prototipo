@@ -1,12 +1,10 @@
 extends Node2D
 
-var turno_actual = 0
+var turno_actual: int = 0
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+# Avanza exactamente un turno cada vez que se llama.
+func avanzar_turno() -> void:
+	turno_actual += 1
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func _al_presionar_boton_turno() -> void:
+	avanzar_turno()
