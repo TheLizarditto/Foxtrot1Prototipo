@@ -1,6 +1,16 @@
 [gd_scene format=3 uid="uid://b4c31gckogab5"]
 
 [ext_resource type="Script" uid="uid://bchnjeq43k8ey" path="res://Scripts/turnos.gd" id="1_ip8jh"]
+[ext_resource type="Texture2D" uid="uid://b78v280m3k8vq" path="res://Assets/botonturno.png" id="2_boton"]
 
 [node name="Turno" type="Node2D" unique_id=1298612257]
 script = ExtResource("1_ip8jh")
+
+[node name="BotonTurno" type="TextureButton" parent="."]
+offset_left = 176.0
+offset_top = 96.0
+offset_right = 240.0
+offset_bottom = 160.0
+texture_normal = ExtResource("2_boton")
+
+[connection signal="pressed" from="BotonTurno" to="." method="_al_presionar_boton_turno"]
