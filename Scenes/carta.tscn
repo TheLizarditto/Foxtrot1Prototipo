@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bcqd6bayhlbrn"]
 
 [ext_resource type="Script" uid="uid://jwacwb2sy0ni" path="res://Scripts/carta.gd" id="1_yasdf"]
-[ext_resource type="Texture2D" uid="uid://chl7oyhai3680" path="res://Assets/carta.png" id="2_rlj8j"]
+[ext_resource type="Texture2D" uid="uid://chl7oyhai3680" path="res://Assets/Carta/carta.png" id="2_rlj8j"]
 
 [node name="Carta" type="Node2D" unique_id=1590937724]
 script = ExtResource("1_yasdf")

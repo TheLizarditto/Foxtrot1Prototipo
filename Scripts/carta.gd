@@ -1,15 +1,15 @@
 extends Node2D
 
-const TEXTURA_ARRIBA := preload("res://Assets/miniflechaarriba.png")
-const TEXTURA_ABAJO := preload("res://Assets/miniflechaabajo.png")
-const TEXTURA_IZQUIERDA := preload("res://Assets/miniflechaizquierda.png")
-const TEXTURA_DERECHA := preload("res://Assets/miniflechaderecha.png")
-const TEXTURA_ARRIBA_IZQUIERDA := preload("res://Assets/miniflechaarribaizquierda.png")
-const TEXTURA_ARRIBA_DERECHA := preload("res://Assets/miniflechaarribaderecha.png")
-const TEXTURA_ABAJO_IZQUIERDA := preload("res://Assets/miniflechaabajoizquierda.png")
-const TEXTURA_ABAJO_DERECHA := preload("res://Assets/miniflechaabajoderecha.png")
-const TEXTURA_ATAQUE := preload("res://Assets/miniespada.png")
-const TEXTURA_DEFENSA := preload("res://Assets/miniescudo.png")
+const TEXTURA_ARRIBA := preload("res://Assets/Carta/miniflechaarriba.png")
+const TEXTURA_ABAJO := preload("res://Assets/Carta/miniflechaabajo.png")
+const TEXTURA_IZQUIERDA := preload("res://Assets/Carta/miniflechaizquierda.png")
+const TEXTURA_DERECHA := preload("res://Assets/Carta/miniflechaderecha.png")
+const TEXTURA_ARRIBA_IZQUIERDA := preload("res://Assets/Carta/miniflechaarribaizquierda.png")
+const TEXTURA_ARRIBA_DERECHA := preload("res://Assets/Carta/miniflechaarribaderecha.png")
+const TEXTURA_ABAJO_IZQUIERDA := preload("res://Assets/Carta/miniflechaabajoizquierda.png")
+const TEXTURA_ABAJO_DERECHA := preload("res://Assets/Carta/miniflechaabajoderecha.png")
+const TEXTURA_ATAQUE := preload("res://Assets/Carta/miniespada.png")
+const TEXTURA_DEFENSA := preload("res://Assets/Carta/miniescudo.png")
 const TAMANO_ICONO := Vector2(10, 10)
 const TAMANO_FUENTE := 10
 
@@ -23,6 +23,7 @@ const TAMANO_FUENTE := 10
 @onready var movimientos_contenedor: HBoxContainer = $Contenido/Movimientos
 @onready var atributos_contenedor: HBoxContainer = $Contenido/Atributos
 
+# Inicializa la carta, ajusta sus valores y muestra movimientos y atributos.
 func _ready() -> void:
 	ataque = maxi(ataque, 0)
 	defensa = maxi(defensa, 0)
@@ -75,6 +76,7 @@ func _mostrar_atributos() -> void:
 	atributos_contenedor.visible = atributos_contenedor.get_child_count() > 0
 
 
+# Crea un indicador visual con icono y numero dentro del contenedor indicado.
 func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int) -> void:
 	var indicador := HBoxContainer.new()
 	indicador.add_theme_constant_override("separation", 1)
@@ -98,6 +100,7 @@ func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: i
 	indicador.add_child(numero)
 
 
+# Normaliza un movimiento y devuelve solo su direccion valida.
 func _obtener_direccion(movimiento: Vector2i) -> Vector2i:
 	if movimiento == Vector2i.ZERO:
 		return Vector2i.ZERO
@@ -109,10 +112,12 @@ func _obtener_direccion(movimiento: Vector2i) -> Vector2i:
 	return direccion
 
 
+# Calcula la cantidad de casillas que representa un movimiento.
 func _obtener_cantidad(movimiento: Vector2i) -> int:
 	return maxi(absi(movimiento.x), absi(movimiento.y))
 
 
+# Devuelve la textura de flecha correspondiente a una direccion.
 func _obtener_textura_movimiento(direccion: Vector2i) -> Texture2D:
 	match direccion:
 		Vector2i(0, -1):
