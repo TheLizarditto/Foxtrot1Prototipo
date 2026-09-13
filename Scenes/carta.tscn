@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://bcqd6bayhlbrn"]
+
+[ext_resource type="Script" uid="uid://jwacwb2sy0ni" path="res://Scripts/carta.gd" id="1_yasdf"]
+[ext_resource type="Texture2D" uid="uid://chl7oyhai3680" path="res://Assets/carta.png" id="2_rlj8j"]
+
+[node name="Carta" type="Node2D" unique_id=1590937724]
+script = ExtResource("1_yasdf")
+sprite_fondo = ExtResource("2_rlj8j")
+
+[node name="Fondo" type="Sprite2D" parent="." unique_id=485347260]
+texture = ExtResource("2_rlj8j")
+
+[node name="Contenido" type="Control" parent="." unique_id=471701517]
+layout_mode = 3
+anchors_preset = 0
+offset_left = -48.0
+offset_top = -64.0
+offset_right = 48.0
+offset_bottom = 64.0
+
+[node name="Movimientos" type="HBoxContainer" parent="Contenido" unique_id=609684243]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 44.0
+offset_right = 92.0
+offset_bottom = 64.0
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Atributos" type="HBoxContainer" parent="Contenido" unique_id=763203123]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 100.0
+offset_right = 92.0
+offset_bottom = 120.0
+theme_override_constants/separation = 8
+alignment = 1
