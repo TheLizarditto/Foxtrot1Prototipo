@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b85cc806ocjby"
-path="res://.godot/imported/miniespada.png-5a1f23124ee93238c9225250f0c1804d.ctex"
+uid="uid://ch64uhghxxxyj"
+path="res://.godot/imported/miniflechaabajoizquierda.png-104cc10815a2e602be79be6c41c484b7.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/miniespada.png"
-dest_files=["res://.godot/imported/miniespada.png-5a1f23124ee93238c9225250f0c1804d.ctex"]
+source_file="res://Assets/Carta/miniflechaabajoizquierda.png"
+dest_files=["res://.godot/imported/miniflechaabajoizquierda.png-104cc10815a2e602be79be6c41c484b7.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cdi54qots0dbd"
-path="res://.godot/imported/caballero.png-2121442c5168aa537dbe479082e30979.ctex"
+uid="uid://dfemijqmaa4h1"
+path="res://.godot/imported/miniflechaizquierda.png-9a4e7b8c762d7bcd0dd7fb8e11c15e11.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/caballero.png"
-dest_files=["res://.godot/imported/caballero.png-2121442c5168aa537dbe479082e30979.ctex"]
+source_file="res://Assets/Carta/miniflechaizquierda.png"
+dest_files=["res://.godot/imported/miniflechaizquierda.png-9a4e7b8c762d7bcd0dd7fb8e11c15e11.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://chl7oyhai3680"
-path="res://.godot/imported/carta.png-f5121b733e9663f08d59bdec6a0e86b9.ctex"
+uid="uid://db1v8ogvr0j8w"
+path="res://.godot/imported/cuadro.png-008043e42c52f607352425f4763b0ea0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/carta.png"
-dest_files=["res://.godot/imported/carta.png-f5121b733e9663f08d59bdec6a0e86b9.ctex"]
+source_file="res://Assets/Tablero/cuadro.png"
+dest_files=["res://.godot/imported/cuadro.png-008043e42c52f607352425f4763b0ea0.ctex"]
 
 [params]
 

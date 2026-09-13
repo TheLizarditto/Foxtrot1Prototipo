@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b78v280m3k8vq"
-path="res://.godot/imported/botonturno.png-da5bd036b93569a482867e9616291f5e.ctex"
+uid="uid://c2k22c0cjvdva"
+path="res://.godot/imported/miniflechaabajo.png-30991aed52a73d0699a53e313acd76bf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/botonturno.png"
-dest_files=["res://.godot/imported/botonturno.png-da5bd036b93569a482867e9616291f5e.ctex"]
+source_file="res://Assets/Carta/miniflechaabajo.png"
+dest_files=["res://.godot/imported/miniflechaabajo.png-30991aed52a73d0699a53e313acd76bf.ctex"]
 
 [params]
 

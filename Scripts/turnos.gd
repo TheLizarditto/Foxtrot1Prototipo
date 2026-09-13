@@ -6,5 +6,6 @@ var turno_actual: int = 0
 func avanzar_turno() -> void:
 	turno_actual += 1
 
+# Responde al boton de turno avanzando al siguiente turno.
 func _al_presionar_boton_turno() -> void:
 	avanzar_turno()
