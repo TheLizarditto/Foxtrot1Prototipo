@@ -26,7 +26,7 @@ func crear_cartas(datos_cartas: Array[Dictionary]) -> void:
 		cartas.append(carta)
 
 
-# Mezcla el orden de la cola de cartas.
+# Mezcla el orden de la baraja de cartas.
 func mezclar() -> void:
 	cartas.shuffle()
 
