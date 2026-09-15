@@ -3,8 +3,10 @@
 [ext_resource type="PackedScene" uid="uid://dv85vfyrw6o4c" path="res://Scenes/tablero.tscn" id="1_h0ha0"]
 [ext_resource type="PackedScene" uid="uid://crwd6dpdbts15" path="res://Scenes/personaje.tscn" id="2_bo1nx"]
 [ext_resource type="PackedScene" uid="uid://b4c31gckogab5" path="res://Scenes/turno.tscn" id="3_turno"]
+[ext_resource type="Script" path="res://Scripts/main.gd" id="4_5som5"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
+script = ExtResource("4_5som5")
 
 [node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
 
