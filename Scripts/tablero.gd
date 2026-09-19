@@ -47,12 +47,9 @@ func _generar_tablero() -> void:
 			celda.position = inicio + Vector2(columna * tamano_celda.x, fila * tamano_celda.y)
 
 # Recibe columna y fila, valida que existan y devuelve la posicion local de esa celda.
-func _obtener_posicion_en_tablero(columna: int, fila: int) -> Vector2:
+func obtener_posicion_en_tablero(columna: int, fila: int) -> Vector2:
 	
-	if columna < 0 or columna >= columnas:
-		return Vector2.ZERO
-	
-	if fila < 0 or fila >= filas:
+	if not es_posicion_valida(columna, fila):
 		return Vector2.ZERO
 	
 	var inicio = _obtener_inicio()
@@ -61,3 +58,16 @@ func _obtener_posicion_en_tablero(columna: int, fila: int) -> Vector2:
 		columna * tamano_celda.x,
 		fila * tamano_celda.y
 	)
+
+
+# Devuelve la posicion de grilla limitada al tamano del tablero.
+func limitar_posicion_en_tablero(posicion: Vector2) -> Vector2:
+	return Vector2(
+		clampi(int(posicion.x), 0, columnas - 1),
+		clampi(int(posicion.y), 0, filas - 1)
+	)
+
+
+# Indica si una posicion de grilla existe dentro del tablero.
+func es_posicion_valida(columna: int, fila: int) -> bool:
+	return columna >= 0 and columna < columnas and fila >= 0 and fila < filas

@@ -186,6 +186,40 @@ static func obtener_direccion_random(generador_random: RandomNumberGenerator) ->
 	return DIRECCIONES_VALIDAS[indice]
 
 
+# Normaliza los datos de una carta para que todas usen la misma estructura.
+static func normalizar_datos(datos: Dictionary) -> Dictionary:
+	return {
+		"movimientos": copiar_movimientos(datos.get("movimientos", [])),
+		"ataque": maxi(int(datos.get("ataque", 0)), 0),
+		"defensa": maxi(int(datos.get("defensa", 0)), 0),
+	}
+
+
+# Copia los movimientos recibidos y conserva solo valores Vector2i.
+static func copiar_movimientos(movimientos_originales: Variant) -> Array[Vector2i]:
+	var movimientos_copiados: Array[Vector2i] = []
+
+	if not movimientos_originales is Array:
+		return movimientos_copiados
+
+	for movimiento in movimientos_originales:
+		if movimientos_copiados.size() >= MAX_MOVIMIENTOS:
+			break
+
+		if movimiento is Vector2i:
+			movimientos_copiados.append(movimiento)
+
+	return movimientos_copiados
+
+
+# Aplica datos normalizados a una carta visual.
+static func aplicar_datos(carta: Node, datos: Dictionary) -> void:
+	var datos_normalizados := normalizar_datos(datos)
+	carta.set("movimientos", datos_normalizados["movimientos"])
+	carta.set("ataque", datos_normalizados["ataque"])
+	carta.set("defensa", datos_normalizados["defensa"])
+
+
 # Crea un indicador visual con icono y numero dentro del contenedor indicado.
 func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int) -> void:
 	var indicador := HBoxContainer.new()
