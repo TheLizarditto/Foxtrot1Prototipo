@@ -62,6 +62,11 @@ func cantidad() -> int:
 	return cartas.size()
 
 
+# Indica si el mazo de robo no tiene cartas disponibles.
+func esta_vacio() -> bool:
+	return cartas.is_empty()
+
+
 # Crea una carta visual en la posicion de origen de la animacion.
 func _crear_carta_visual_animacion(datos_carta: Dictionary, posicion_origen: Vector2) -> Node2D:
 	var carta := ESCENA_CARTA.instantiate() as Node2D
