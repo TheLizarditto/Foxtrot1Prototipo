@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://b4nn81kl12ga3"]
 
 [ext_resource type="PackedScene" uid="uid://dv85vfyrw6o4c" path="res://Scenes/tablero.tscn" id="1_h0ha0"]
-[ext_resource type="PackedScene" uid="uid://bcqd6bayhlbrn" path="res://Scenes/carta.tscn" id="1_jjvhh"]
 [ext_resource type="PackedScene" uid="uid://crwd6dpdbts15" path="res://Scenes/personaje.tscn" id="2_bo1nx"]
 [ext_resource type="PackedScene" uid="uid://b4c31gckogab5" path="res://Scenes/turno.tscn" id="3_turno"]
-[ext_resource type="Script" path="res://Scripts/main.gd" id="4_5som5"]
+[ext_resource type="Script" uid="uid://5wb2l8yt23p5" path="res://Scripts/main.gd" id="4_5som5"]
+[ext_resource type="PackedScene" uid="uid://c0p7u0fqj3qnl" path="res://Scenes/baraja.tscn" id="5_7qqcn"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 script = ExtResource("4_5som5")
@@ -12,15 +12,11 @@ script = ExtResource("4_5som5")
 [node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
 
 [node name="Camera2D" type="Camera2D" parent="Tablero" unique_id=496038153]
-zoom = Vector2(1.5, 1.5)
 
 [node name="Personaje" parent="." unique_id=466476145 instance=ExtResource("2_bo1nx")]
 scale = Vector2(2, 2)
 
 [node name="Turno" parent="." unique_id=1889608141 instance=ExtResource("3_turno")]
 
-[node name="Carta" parent="." unique_id=1590937724 instance=ExtResource("1_jjvhh")]
-position = Vector2(214, 0)
-movimientos = Array[Vector2i]([Vector2i(0, 1), Vector2i(0, -1)])
-ataque = 2
-defensa = 2
+[node name="Baraja" parent="." unique_id=1460104477 instance=ExtResource("5_7qqcn")]
+visible = false
