@@ -1,8 +1,6 @@
 extends Node2D
 class_name Baraja
 
-const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
-
 @export var cantidad_cartas := 20
 @export var min_movimientos := 2
 @export var max_movimientos := Carta.MAX_MOVIMIENTOS
@@ -27,7 +25,7 @@ func crear_cartas(datos_cartas: Array[Dictionary]) -> void:
 	cartas.clear()
 
 	for datos in datos_cartas:
-		cartas.append(_normalizar_datos_carta(datos))
+		cartas.append(Carta.normalizar_datos(datos))
 
 
 # Genera cartas random usando los valores minimos y maximos configurados.
@@ -70,18 +68,6 @@ func obtener_cartas() -> Array[Dictionary]:
 		copia_cartas.append(datos.duplicate(true))
 
 	return copia_cartas
-
-
-# Instancia una carta visual a partir de los datos indicados.
-func crear_carta_visual(datos: Dictionary) -> Node2D:
-	var carta := ESCENA_CARTA.instantiate() as Node2D
-	var datos_normalizados := _normalizar_datos_carta(datos)
-
-	carta.set("movimientos", datos_normalizados["movimientos"])
-	carta.set("ataque", datos_normalizados["ataque"])
-	carta.set("defensa", datos_normalizados["defensa"])
-
-	return carta
 
 
 # Crea los datos de una carta random respetando los limites configurados.
@@ -129,29 +115,3 @@ func _obtener_entero_ordenado(valor_minimo: int, valor_maximo: int) -> int:
 	var maximo := maxi(valor_minimo, valor_maximo)
 
 	return generador_random.randi_range(minimo, maximo)
-
-
-# Normaliza los datos de una carta para que todas usen la misma estructura.
-func _normalizar_datos_carta(datos: Dictionary) -> Dictionary:
-	return {
-		"movimientos": _copiar_movimientos(datos.get("movimientos", [])),
-		"ataque": maxi(int(datos.get("ataque", 0)), 0),
-		"defensa": maxi(int(datos.get("defensa", 0)), 0),
-	}
-
-
-# Copia los movimientos recibidos y conserva solo valores Vector2i.
-func _copiar_movimientos(movimientos_originales: Variant) -> Array[Vector2i]:
-	var movimientos: Array[Vector2i] = []
-
-	if not movimientos_originales is Array:
-		return movimientos
-
-	for movimiento in movimientos_originales:
-		if movimientos.size() >= Carta.MAX_MOVIMIENTOS:
-			break
-
-		if movimiento is Vector2i:
-			movimientos.append(movimiento)
-
-	return movimientos
