@@ -3,7 +3,7 @@ class_name Baraja
 
 const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 
-@export var cantidad_cartas := 4
+@export var cantidad_cartas := 20
 @export var min_movimientos := 2
 @export var max_movimientos := Carta.MAX_MOVIMIENTOS
 @export var min_pasos_movimiento := 1
@@ -15,10 +15,11 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 
 var cartas: Array[Dictionary] = []
 var generador_random := RandomNumberGenerator.new()
+var random_inicializado := false
 
 # Inicializa el generador random de la baraja.
 func _ready() -> void:
-	generador_random.randomize()
+	_inicializar_random()
 
 
 # Guarda los datos de las cartas de la baraja y las prepara como una cola.
@@ -31,6 +32,8 @@ func crear_cartas(datos_cartas: Array[Dictionary]) -> void:
 
 # Genera cartas random usando los valores minimos y maximos configurados.
 func generar_cartas_random(cantidad_a_generar := -1) -> void:
+	_inicializar_random()
+
 	var total := cantidad_cartas if cantidad_a_generar < 0 else cantidad_a_generar
 	var datos_cartas: Array[Dictionary] = []
 
@@ -90,13 +93,22 @@ func _crear_datos_carta_random() -> Dictionary:
 	}
 
 
+# Inicializa el generador random una sola vez.
+func _inicializar_random() -> void:
+	if random_inicializado:
+		return
+
+	generador_random.randomize()
+	random_inicializado = true
+
+
 # Crea la lista de movimientos random de una carta.
 func _crear_movimientos_random() -> Array[Vector2i]:
 	var movimientos: Array[Vector2i] = []
 	var total_movimientos := _obtener_cantidad_movimientos_random()
 
 	for _indice in range(total_movimientos):
-		var direccion := MovimientosCarta.obtener_direccion_random(generador_random)
+		var direccion := Carta.obtener_direccion_random(generador_random)
 		var pasos := _obtener_entero_ordenado(min_pasos_movimiento, max_pasos_movimiento)
 		movimientos.append(direccion * maxi(pasos, 1))
 
