@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c0p7u0fqj3qnl"]
+
+[ext_resource type="Script" uid="uid://b6i7j5wkviqmx" path="res://Scripts/baraja.gd" id="1_jq857"]
+
+[node name="Baraja" type="Node2D"]
+script = ExtResource("1_jq857")
