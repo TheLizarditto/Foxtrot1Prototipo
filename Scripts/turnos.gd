@@ -19,12 +19,12 @@ func iniciar_primer_turno() -> void:
 	if turno_actual != 0:
 		return
 
-	boton_turno.disabled = true
+	_bloquear_boton_turno(true)
 	baraja.generar_cartas_random()
 	baraja.mezclar()
 	await mazo_robo.cargar_cartas_animadas(baraja.obtener_cartas())
 	avanzar_turno()
-	boton_turno.disabled = false
+	_bloquear_boton_turno(false)
 
 
 # Avanza exactamente un turno cada vez que se llama.
@@ -34,3 +34,8 @@ func avanzar_turno() -> void:
 # Responde al boton de turno avanzando al siguiente turno.
 func _al_presionar_boton_turno() -> void:
 	avanzar_turno()
+
+
+# Activa o desactiva el boton de turno mientras se resuelven acciones.
+func _bloquear_boton_turno(bloqueado: bool) -> void:
+	boton_turno.disabled = bloqueado
