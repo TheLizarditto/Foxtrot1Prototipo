@@ -6,15 +6,33 @@ const TEXTURA_DEFENSA := preload("res://Assets/Carta/miniescudo.png")
 const MAX_MOVIMIENTOS := 4
 const TAMANO_ICONO := Vector2(10, 10)
 const TAMANO_FUENTE := 10
+const DIRECCION_ARRIBA := Vector2i(0, -1)
+const DIRECCION_ABAJO := Vector2i(0, 1)
+const DIRECCION_IZQUIERDA := Vector2i(-1, 0)
+const DIRECCION_DERECHA := Vector2i(1, 0)
+const DIRECCION_ARRIBA_IZQUIERDA := Vector2i(-1, -1)
+const DIRECCION_ARRIBA_DERECHA := Vector2i(1, -1)
+const DIRECCION_ABAJO_IZQUIERDA := Vector2i(-1, 1)
+const DIRECCION_ABAJO_DERECHA := Vector2i(1, 1)
+const DIRECCIONES_VALIDAS: Array[Vector2i] = [
+	DIRECCION_ARRIBA,
+	DIRECCION_ABAJO,
+	DIRECCION_IZQUIERDA,
+	DIRECCION_DERECHA,
+	DIRECCION_ARRIBA_IZQUIERDA,
+	DIRECCION_ARRIBA_DERECHA,
+	DIRECCION_ABAJO_IZQUIERDA,
+	DIRECCION_ABAJO_DERECHA,
+]
 const TEXTURAS_MOVIMIENTO := {
-	MovimientosCarta.DIRECCION_ARRIBA: preload("res://Assets/Carta/miniflechaarriba.png"),
-	MovimientosCarta.DIRECCION_ABAJO: preload("res://Assets/Carta/miniflechaabajo.png"),
-	MovimientosCarta.DIRECCION_IZQUIERDA: preload("res://Assets/Carta/miniflechaizquierda.png"),
-	MovimientosCarta.DIRECCION_DERECHA: preload("res://Assets/Carta/miniflechaderecha.png"),
-	MovimientosCarta.DIRECCION_ARRIBA_IZQUIERDA: preload("res://Assets/Carta/miniflechaarribaizquierda.png"),
-	MovimientosCarta.DIRECCION_ARRIBA_DERECHA: preload("res://Assets/Carta/miniflechaarribaderecha.png"),
-	MovimientosCarta.DIRECCION_ABAJO_IZQUIERDA: preload("res://Assets/Carta/miniflechaabajoizquierda.png"),
-	MovimientosCarta.DIRECCION_ABAJO_DERECHA: preload("res://Assets/Carta/miniflechaabajoderecha.png"),
+	DIRECCION_ARRIBA: preload("res://Assets/Carta/miniflechaarriba.png"),
+	DIRECCION_ABAJO: preload("res://Assets/Carta/miniflechaabajo.png"),
+	DIRECCION_IZQUIERDA: preload("res://Assets/Carta/miniflechaizquierda.png"),
+	DIRECCION_DERECHA: preload("res://Assets/Carta/miniflechaderecha.png"),
+	DIRECCION_ARRIBA_IZQUIERDA: preload("res://Assets/Carta/miniflechaarribaizquierda.png"),
+	DIRECCION_ARRIBA_DERECHA: preload("res://Assets/Carta/miniflechaarribaderecha.png"),
+	DIRECCION_ABAJO_IZQUIERDA: preload("res://Assets/Carta/miniflechaabajoizquierda.png"),
+	DIRECCION_ABAJO_DERECHA: preload("res://Assets/Carta/miniflechaabajoderecha.png"),
 }
 
 @export var tamano_carta := Vector2i(96, 128)
@@ -38,7 +56,9 @@ func _ready() -> void:
 	delay_entre_movimientos = maxf(delay_entre_movimientos, 0.0)
 	_limitar_movimientos()
 
-	InterfazJuego.ajustar_sprite(fondo, sprite_fondo, Vector2(tamano_carta))
+	fondo.texture = sprite_fondo
+	if sprite_fondo != null:
+		fondo.scale = Vector2(tamano_carta) / sprite_fondo.get_size()
 
 	_mostrar_movimientos()
 	_mostrar_atributos()
@@ -74,22 +94,20 @@ func _mostrar_movimientos() -> void:
 	var movimientos_agrupados: Array[Vector2i] = []
 
 	for movimiento in _obtener_movimientos_validos():
-		var direccion := MovimientosCarta.obtener_direccion(movimiento)
-		var cantidad := MovimientosCarta.obtener_cantidad(movimiento)
+		var direccion := obtener_direccion(movimiento)
+		var cantidad := obtener_cantidad(movimiento)
 
 		# Dos movimientos consecutivos iguales se muestran como una sola cantidad.
-		if not movimientos_agrupados.is_empty() and MovimientosCarta.obtener_direccion(movimientos_agrupados[-1]) == direccion:
+		if not movimientos_agrupados.is_empty() and obtener_direccion(movimientos_agrupados[-1]) == direccion:
 			movimientos_agrupados[-1] += direccion * cantidad
 		else:
 			movimientos_agrupados.append(direccion * cantidad)
 
 	for movimiento in movimientos_agrupados:
-		InterfazJuego.crear_indicador(
+		_crear_indicador(
 			movimientos_contenedor,
-			_obtener_textura_movimiento(MovimientosCarta.obtener_direccion(movimiento)),
-			MovimientosCarta.obtener_cantidad(movimiento),
-			TAMANO_ICONO,
-			TAMANO_FUENTE
+			_obtener_textura_movimiento(obtener_direccion(movimiento)),
+			obtener_cantidad(movimiento)
 		)
 
 	movimientos_contenedor.visible = movimientos_contenedor.get_child_count() > 0
@@ -98,10 +116,10 @@ func _mostrar_movimientos() -> void:
 # Ataque y defensa usan un unico icono cada uno, siempre a la izquierda del valor.
 func _mostrar_atributos() -> void:
 	if ataque > 0:
-		InterfazJuego.crear_indicador(atributos_contenedor, TEXTURA_ATAQUE, ataque, TAMANO_ICONO, TAMANO_FUENTE)
+		_crear_indicador(atributos_contenedor, TEXTURA_ATAQUE, ataque)
 
 	if defensa > 0:
-		InterfazJuego.crear_indicador(atributos_contenedor, TEXTURA_DEFENSA, defensa, TAMANO_ICONO, TAMANO_FUENTE)
+		_crear_indicador(atributos_contenedor, TEXTURA_DEFENSA, defensa)
 
 	atributos_contenedor.visible = atributos_contenedor.get_child_count() > 0
 
@@ -121,8 +139,8 @@ func _obtener_movimientos_validos() -> Array[Vector2i]:
 
 	for indice in range(mini(movimientos.size(), MAX_MOVIMIENTOS)):
 		var movimiento := movimientos[indice]
-		var direccion := MovimientosCarta.obtener_direccion(movimiento)
-		var cantidad := MovimientosCarta.obtener_cantidad(movimiento)
+		var direccion := obtener_direccion(movimiento)
+		var cantidad := obtener_cantidad(movimiento)
 
 		if direccion == Vector2i.ZERO or cantidad == 0:
 			push_warning("Movimiento invalido en carta: %s" % movimiento)
@@ -143,6 +161,53 @@ func _obtener_personaje() -> Node:
 		return null
 
 	return get_tree().current_scene.find_child("Personaje", true, false)
+
+
+# Normaliza un movimiento y devuelve solo su direccion valida.
+static func obtener_direccion(movimiento: Vector2i) -> Vector2i:
+	if movimiento == Vector2i.ZERO:
+		return Vector2i.ZERO
+
+	var direccion := Vector2i(signi(movimiento.x), signi(movimiento.y))
+	if direccion.x != 0 and direccion.y != 0 and absi(movimiento.x) != absi(movimiento.y):
+		return Vector2i.ZERO
+
+	return direccion
+
+
+# Calcula la cantidad de casillas que representa un movimiento.
+static func obtener_cantidad(movimiento: Vector2i) -> int:
+	return maxi(absi(movimiento.x), absi(movimiento.y))
+
+
+# Devuelve una direccion random valida usando el generador indicado.
+static func obtener_direccion_random(generador_random: RandomNumberGenerator) -> Vector2i:
+	var indice := generador_random.randi_range(0, DIRECCIONES_VALIDAS.size() - 1)
+	return DIRECCIONES_VALIDAS[indice]
+
+
+# Crea un indicador visual con icono y numero dentro del contenedor indicado.
+func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int) -> void:
+	var indicador := HBoxContainer.new()
+	indicador.add_theme_constant_override("separation", 1)
+	indicador.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	contenedor.add_child(indicador)
+
+	var icono := TextureRect.new()
+	icono.custom_minimum_size = TAMANO_ICONO
+	icono.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icono.texture = textura
+	icono.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icono.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icono.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	indicador.add_child(icono)
+
+	var numero := Label.new()
+	numero.text = str(cantidad)
+	numero.add_theme_font_size_override("font_size", TAMANO_FUENTE)
+	numero.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	numero.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	indicador.add_child(numero)
 
 
 # Devuelve la textura de flecha correspondiente a una direccion.

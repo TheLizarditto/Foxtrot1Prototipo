@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://crn0o8ffxj31a"]
+
+[ext_resource type="Script" uid="uid://cgudxq2f1v1ly" path="res://Scripts/mazo_robo.gd" id="1_kpr7f"]
+[ext_resource type="Texture2D" uid="uid://chl7oyhai3680" path="res://Assets/Carta/carta.png" id="2_ywvf4"]
+
+[node name="MazoRobo" type="Node2D"]
+script = ExtResource("1_kpr7f")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_ywvf4")
