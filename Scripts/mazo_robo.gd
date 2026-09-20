@@ -14,7 +14,14 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 @export var min_espera_carta_visible := 0.01
 @export var escala_carta_al_entrar := Vector2(0.35, 0.35)
 
+@onready var contador_cartas: Label = $ContadorCartas
+
 var cartas: Array[Dictionary] = []
+
+# Inicializa el contador temporal del mazo de robo.
+func _ready() -> void:
+	_actualizar_contador()
+
 
 # Carga las cartas recibidas en la cola del mazo de robo.
 func cargar_cartas(datos_cartas: Array[Dictionary]) -> void:
@@ -27,11 +34,13 @@ func cargar_cartas(datos_cartas: Array[Dictionary]) -> void:
 # Vacia todas las cartas guardadas en el mazo de robo.
 func vaciar() -> void:
 	cartas.clear()
+	_actualizar_contador()
 
 
 # Inserta una carta al final de la cola del mazo de robo.
 func insertar_carta(datos: Dictionary) -> void:
 	cartas.append(Carta.normalizar_datos(datos))
+	_actualizar_contador()
 
 
 # Anima las cartas recibidas entrando al mazo de robo y las inserta en el mismo orden.
@@ -54,6 +63,7 @@ func robar_carta() -> Dictionary:
 		return {}
 
 	var datos: Dictionary = cartas.pop_front()
+	_actualizar_contador()
 	return datos.duplicate(true)
 
 
@@ -65,6 +75,14 @@ func cantidad() -> int:
 # Indica si el mazo de robo no tiene cartas disponibles.
 func esta_vacio() -> bool:
 	return cartas.is_empty()
+
+
+# Actualiza el contador temporal con la cantidad actual de cartas.
+func _actualizar_contador() -> void:
+	if not is_node_ready():
+		return
+
+	contador_cartas.text = str(cantidad())
 
 
 # Crea una carta visual en la posicion de origen de la animacion.

@@ -1,7 +1,14 @@
 extends Node2D
 class_name MazoDescarte
 
+@onready var contador_cartas: Label = $ContadorCartas
+
 var cartas: Array[Dictionary] = []
+
+# Inicializa el contador temporal del mazo de descarte.
+func _ready() -> void:
+	_actualizar_contador()
+
 
 # Carga las cartas recibidas en el mazo de descarte.
 func cargar_cartas(datos_cartas: Array[Dictionary]) -> void:
@@ -14,11 +21,13 @@ func cargar_cartas(datos_cartas: Array[Dictionary]) -> void:
 # Vacia todas las cartas guardadas en el mazo de descarte.
 func vaciar() -> void:
 	cartas.clear()
+	_actualizar_contador()
 
 
 # Recibe una carta jugada y la guarda al final del mazo de descarte.
 func recibir_carta(datos: Dictionary) -> void:
 	cartas.append(Carta.normalizar_datos(datos))
+	_actualizar_contador()
 
 
 # Devuelve todas las cartas del descarte en orden y deja el mazo vacio.
@@ -47,3 +56,11 @@ func cantidad() -> int:
 # Indica si el mazo de descarte no tiene cartas disponibles.
 func esta_vacio() -> bool:
 	return cartas.is_empty()
+
+
+# Actualiza el contador temporal con la cantidad actual de cartas.
+func _actualizar_contador() -> void:
+	if not is_node_ready():
+		return
+
+	contador_cartas.text = str(cantidad())
