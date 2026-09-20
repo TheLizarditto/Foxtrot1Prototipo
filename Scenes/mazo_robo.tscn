@@ -8,3 +8,13 @@ script = ExtResource("1_kpr7f")
 
 [node name="Sprite" type="Sprite2D" parent="."]
 texture = ExtResource("2_ywvf4")
+
+[node name="ContadorCartas" type="Label" parent="."]
+offset_left = -48.0
+offset_top = -96.0
+offset_right = 48.0
+offset_bottom = -72.0
+theme_override_font_sizes/font_size = 18
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
