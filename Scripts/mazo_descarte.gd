@@ -64,3 +64,8 @@ func _actualizar_contador() -> void:
 		return
 
 	contador_cartas.text = str(cantidad())
+
+
+# Mezcla el orden de la baraja de descarte.
+func mezclar() -> void:
+	cartas.shuffle()
