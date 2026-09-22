@@ -57,6 +57,20 @@ func cargar_cartas_animadas(datos_cartas: Array[Dictionary], origen_global: Vari
 		carta.queue_free()
 
 
+# Recarga el mazo de robo con las cartas mezcladas del mazo de descarte si esta vacio.
+func recargar_desde_descarte(mazo_descarte: MazoDescarte) -> bool:
+	if not esta_vacio():
+		return true
+
+	if mazo_descarte == null or mazo_descarte.esta_vacio():
+		return false
+
+	mazo_descarte.mezclar()
+	await cargar_cartas_animadas(mazo_descarte.entregar_cartas(), mazo_descarte.global_position)
+
+	return not esta_vacio()
+
+
 # Devuelve los datos de la proxima carta del mazo de robo.
 func robar_carta() -> Dictionary:
 	if cartas.is_empty():
@@ -65,6 +79,19 @@ func robar_carta() -> Dictionary:
 	var datos: Dictionary = cartas.pop_front()
 	_actualizar_contador()
 	return datos.duplicate(true)
+
+
+# Devuelve la proxima carta y recarga desde el descarte si el mazo queda vacio.
+func robar_carta_con_recarga(mazo_descarte: MazoDescarte) -> Dictionary:
+	if esta_vacio():
+		await recargar_desde_descarte(mazo_descarte)
+
+	var datos := robar_carta()
+
+	if esta_vacio():
+		await recargar_desde_descarte(mazo_descarte)
+
+	return datos
 
 
 # Devuelve la cantidad de cartas guardadas en el mazo de robo.
