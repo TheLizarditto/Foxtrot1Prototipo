@@ -29,3 +29,5 @@ position = Vector2(312, 220)
 position = Vector2(-304, 220)
 
 [node name="Mano" parent="." instance=ExtResource("8_mano")]
+position = Vector2(4, 220)
+z_index = 10
