@@ -28,7 +28,7 @@ func iniciar_primer_turno() -> void:
 	baraja.generar_cartas_random()
 	baraja.mezclar()
 	await mazo_robo.cargar_cartas_animadas(baraja.obtener_cartas())
-	mano.cargar_desde_mazo(mazo_robo)
+	await mano.cargar_desde_mazo_animada(mazo_robo)
 	avanzar_turno()
 	_bloquear_boton_turno(false)
 
