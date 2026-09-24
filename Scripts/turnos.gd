@@ -3,16 +3,19 @@ extends Node2D
 @export var ruta_baraja: NodePath = "../Baraja"
 @export var ruta_mazo_robo: NodePath = "../MazoRobo"
 @export var ruta_mazo_descarte: NodePath = "../MazoDescarte"
+@export var ruta_mano: NodePath = "../Mano"
 
 @onready var baraja: Baraja = get_node(ruta_baraja)
 @onready var mazo_robo: MazoRobo = get_node(ruta_mazo_robo)
 @onready var mazo_descarte: MazoDescarte = get_node(ruta_mazo_descarte)
+@onready var mano: Mano = get_node(ruta_mano)
 @onready var boton_turno: TextureButton = $BotonTurno
 
 var turno_actual: int = 0
 
 # Prepara el primer turno cuando el nodo entra en escena.
 func _ready() -> void:
+	await get_tree().process_frame
 	await iniciar_primer_turno()
 
 
@@ -25,6 +28,7 @@ func iniciar_primer_turno() -> void:
 	baraja.generar_cartas_random()
 	baraja.mezclar()
 	await mazo_robo.cargar_cartas_animadas(baraja.obtener_cartas())
+	mano.cargar_desde_mazo(mazo_robo)
 	avanzar_turno()
 	_bloquear_boton_turno(false)
 
