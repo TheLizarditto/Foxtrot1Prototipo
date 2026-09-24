@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://c0p7u0fqj3qnl" path="res://Scenes/baraja.tscn" id="5_7qqcn"]
 [ext_resource type="PackedScene" uid="uid://crn0o8ffxj31a" path="res://Scenes/mazo_robo.tscn" id="6_vuy8l"]
 [ext_resource type="PackedScene" uid="uid://cmk7l3x5ocbqa" path="res://Scenes/mazo_descarte.tscn" id="7_ses36"]
+[ext_resource type="PackedScene" path="res://Scenes/mano.tscn" id="8_mano"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 
@@ -26,3 +27,7 @@ position = Vector2(312, 220)
 
 [node name="MazoDescarte" parent="." unique_id=1951663907 instance=ExtResource("7_ses36")]
 position = Vector2(-304, 220)
+
+[node name="Mano" parent="." instance=ExtResource("8_mano")]
+position = Vector2(4, 220)
+z_index = 10
