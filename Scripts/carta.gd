@@ -37,12 +37,14 @@ const TEXTURAS_MOVIMIENTO := {
 
 @export var tamano_carta := Vector2i(96, 128)
 @export var sprite_fondo: Texture2D
+@export var sprite_atras: Texture2D
 @export var movimientos: Array[Vector2i] = []
 @export var ataque := 0
 @export var defensa := 0
 @export var ruta_personaje: NodePath = "../Personaje"
 @export var delay_entre_movimientos := 0.5
 
+@onready var atras: Sprite2D = $Atras
 @onready var fondo: Sprite2D = $Fondo
 @onready var movimientos_contenedor: HBoxContainer = $Contenido/Movimientos
 @onready var atributos_contenedor: HBoxContainer = $Contenido/Atributos
@@ -60,8 +62,28 @@ func _ready() -> void:
 	if sprite_fondo != null:
 		fondo.scale = Vector2(tamano_carta) / sprite_fondo.get_size()
 
+	var textura_atras := sprite_atras if sprite_atras != null else sprite_fondo
+	atras.texture = textura_atras
+	if textura_atras != null:
+		atras.scale = Vector2(tamano_carta) / textura_atras.get_size()
+
 	_mostrar_movimientos()
 	_mostrar_atributos()
+	mostrar_frente()
+
+
+# Muestra la cara frontal y oculta el dorso de la carta.
+func mostrar_frente() -> void:
+	atras.visible = false
+	fondo.visible = true
+	$Contenido.visible = true
+
+
+# Muestra el dorso y oculta los datos de la cara frontal.
+func mostrar_atras() -> void:
+	fondo.visible = false
+	$Contenido.visible = false
+	atras.visible = true
 
 
 # Ejecuta los movimientos de la carta sobre el personaje indicado.

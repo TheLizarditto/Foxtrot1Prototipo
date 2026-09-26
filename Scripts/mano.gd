@@ -134,17 +134,14 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	var tamano_carta := Vector2(carta_visual.get("tamano_carta"))
 	var posicion_elevada := posicion_inicial + tamano_carta * desplazamiento_elevacion_relativo
 	var control_arco := (posicion_elevada + posicion_destino) / 2.0 + Vector2(0.0, -altura_animacion_robo)
-	var contenido := carta_visual.get_node_or_null("Contenido") as CanvasItem
 
 	_acomodar_cartas_existentes(carta_visual, duracion_levantar_carta)
+	carta_visual.mostrar_atras()
 	carta_visual.position = posicion_inicial
 	carta_visual.rotation = 0.0
 	carta_visual.scale = escala_inicial_robo
 	carta_visual.modulate = color_carta_oculta
 	carta_visual.z_index = total + 1
-
-	if contenido != null:
-		contenido.visible = false
 
 	var tween := create_tween()
 	var levantar := tween.tween_property(
@@ -175,7 +172,7 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 		maxf(duracion_girar_carta, 0.0)
 	)
 
-	tween.tween_callback(_mostrar_frente_carta.bind(carta_visual, contenido, z_destino))
+	tween.tween_callback(_mostrar_frente_carta.bind(carta_visual, z_destino))
 
 	var segunda_mitad := tween.tween_method(
 		_mover_carta_en_arco.bind(carta_visual, posicion_elevada, control_arco, posicion_destino),
@@ -248,10 +245,8 @@ func _mover_carta_en_arco(
 
 
 # Revela el contenido de la carta justo cuando termina de darse vuelta.
-func _mostrar_frente_carta(carta_visual: Node2D, contenido: CanvasItem, z_destino: int) -> void:
-	if contenido != null:
-		contenido.visible = true
-
+func _mostrar_frente_carta(carta_visual: Carta, z_destino: int) -> void:
+	carta_visual.mostrar_frente()
 	carta_visual.modulate = Color.WHITE
 	carta_visual.z_index = z_destino
 

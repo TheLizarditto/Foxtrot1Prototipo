@@ -7,6 +7,8 @@
 script = ExtResource("1_yasdf")
 sprite_fondo = ExtResource("2_rlj8j")
 
+[node name="Atras" type="Sprite2D" parent="."]
+
 [node name="Fondo" type="Sprite2D" parent="." unique_id=485347260]
 texture = ExtResource("2_rlj8j")
 
