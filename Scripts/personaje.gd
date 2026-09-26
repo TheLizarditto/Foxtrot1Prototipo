@@ -10,12 +10,19 @@ var posicion := Vector2.ZERO
 func _ready() -> void:
 	_actualizar_posicion_centro()
 	
-# Recibe una direccion de movimiento y actualiza la posicion en la grilla.
-func movimiento(direccion: Vector2i) -> void:
-	posicion += Vector2(direccion)
-	posicion.x = clampi(posicion.x, 0, tablero.columnas - 1)
-	posicion.y = clampi(posicion.y, 0, tablero.filas - 1)
+# Recibe un paso de movimiento y lo aplica solo si la celda destino existe.
+func movimiento(direccion: Vector2i) -> bool:
+	var paso := Vector2i(signi(direccion.x), signi(direccion.y))
+	if paso == Vector2i.ZERO:
+		return false
+
+	var destino := Vector2i(posicion) + paso
+	if not tablero.es_posicion_valida(destino.x, destino.y):
+		return false
+
+	posicion = destino
 	_actualizar_sprite()
+	return true
 	
 # Calcula la celda central del tablero y mueve ahi al personaje.
 func _actualizar_posicion_centro() -> void:
@@ -25,5 +32,5 @@ func _actualizar_posicion_centro() -> void:
 # Convierte la posicion de grilla del personaje a posicion global.
 func _actualizar_sprite() -> void:
 	global_position = tablero.to_global(
-		tablero._obtener_posicion_en_tablero(int(posicion.x), int(posicion.y))
+		tablero.obtener_posicion_en_tablero(int(posicion.x), int(posicion.y))
 	)

@@ -1,0 +1,278 @@
+extends Node2D
+class_name Carta
+
+const TEXTURA_ATAQUE := preload("res://Assets/Carta/miniespada.png")
+const TEXTURA_DEFENSA := preload("res://Assets/Carta/miniescudo.png")
+const MAX_MOVIMIENTOS := 4
+const TAMANO_ICONO := Vector2(10, 10)
+const TAMANO_FUENTE := 10
+const DIRECCION_ARRIBA := Vector2i(0, -1)
+const DIRECCION_ABAJO := Vector2i(0, 1)
+const DIRECCION_IZQUIERDA := Vector2i(-1, 0)
+const DIRECCION_DERECHA := Vector2i(1, 0)
+const DIRECCION_ARRIBA_IZQUIERDA := Vector2i(-1, -1)
+const DIRECCION_ARRIBA_DERECHA := Vector2i(1, -1)
+const DIRECCION_ABAJO_IZQUIERDA := Vector2i(-1, 1)
+const DIRECCION_ABAJO_DERECHA := Vector2i(1, 1)
+const DIRECCIONES_VALIDAS: Array[Vector2i] = [
+	DIRECCION_ARRIBA,
+	DIRECCION_ABAJO,
+	DIRECCION_IZQUIERDA,
+	DIRECCION_DERECHA,
+	DIRECCION_ARRIBA_IZQUIERDA,
+	DIRECCION_ARRIBA_DERECHA,
+	DIRECCION_ABAJO_IZQUIERDA,
+	DIRECCION_ABAJO_DERECHA,
+]
+const TEXTURAS_MOVIMIENTO := {
+	DIRECCION_ARRIBA: preload("res://Assets/Carta/miniflechaarriba.png"),
+	DIRECCION_ABAJO: preload("res://Assets/Carta/miniflechaabajo.png"),
+	DIRECCION_IZQUIERDA: preload("res://Assets/Carta/miniflechaizquierda.png"),
+	DIRECCION_DERECHA: preload("res://Assets/Carta/miniflechaderecha.png"),
+	DIRECCION_ARRIBA_IZQUIERDA: preload("res://Assets/Carta/miniflechaarribaizquierda.png"),
+	DIRECCION_ARRIBA_DERECHA: preload("res://Assets/Carta/miniflechaarribaderecha.png"),
+	DIRECCION_ABAJO_IZQUIERDA: preload("res://Assets/Carta/miniflechaabajoizquierda.png"),
+	DIRECCION_ABAJO_DERECHA: preload("res://Assets/Carta/miniflechaabajoderecha.png"),
+}
+
+@export var tamano_carta := Vector2i(96, 128)
+@export var sprite_fondo: Texture2D
+@export var sprite_atras: Texture2D
+@export var movimientos: Array[Vector2i] = []
+@export var ataque := 0
+@export var defensa := 0
+@export var ruta_personaje: NodePath = "../Personaje"
+@export var delay_entre_movimientos := 0.5
+
+@onready var atras: Sprite2D = $Atras
+@onready var fondo: Sprite2D = $Fondo
+@onready var movimientos_contenedor: HBoxContainer = $Contenido/Movimientos
+@onready var atributos_contenedor: HBoxContainer = $Contenido/Atributos
+
+var ejecutando := false
+var boca_abajo := false
+
+# Inicializa la carta, ajusta sus valores y muestra movimientos y atributos.
+func _ready() -> void:
+	ataque = maxi(ataque, 0)
+	defensa = maxi(defensa, 0)
+	delay_entre_movimientos = maxf(delay_entre_movimientos, 0.0)
+	_limitar_movimientos()
+
+	var textura_atras := sprite_atras if sprite_atras != null else sprite_fondo
+	atras.texture = textura_atras
+	if textura_atras != null:
+		atras.scale = Vector2(tamano_carta) / textura_atras.get_size()
+
+	_mostrar_movimientos()
+	_mostrar_atributos()
+	mostrar_frente()
+
+
+# Muestra la cara frontal y oculta el dorso de la carta.
+func mostrar_frente() -> void:
+	atras.visible = false
+	fondo.visible = true
+	$Contenido.visible = true
+
+
+# Muestra el dorso y oculta los datos de la cara frontal.
+func mostrar_atras() -> void:
+	fondo.visible = false
+	$Contenido.visible = false
+	atras.visible = true
+
+
+# Ejecuta los movimientos de la carta sobre el personaje indicado.
+func ejecutar(personaje: Node = null) -> void:
+	if ejecutando:
+		return
+
+	if personaje == null:
+		personaje = _obtener_personaje()
+
+	if personaje == null or not personaje.has_method("movimiento"):
+		push_warning("La carta no encontro un personaje valido para ejecutar movimientos.")
+		return
+
+	ejecutando = true
+	var movimientos_validos := _obtener_movimientos_validos()
+	var pasos_totales := 0
+
+	for movimiento in movimientos_validos:
+		pasos_totales += obtener_cantidad(movimiento)
+
+	var paso_actual := 0
+	for movimiento in movimientos_validos:
+		var direccion := obtener_direccion(movimiento)
+		var cantidad_pasos := obtener_cantidad(movimiento)
+
+		for _paso in range(cantidad_pasos):
+			personaje.movimiento(direccion)
+			paso_actual += 1
+
+			if paso_actual < pasos_totales and delay_entre_movimientos > 0.0:
+				await get_tree().create_timer(delay_entre_movimientos).timeout
+
+	ejecutando = false
+
+
+# Muestra cada movimiento de izquierda a derecha como flecha y cantidad.
+# Por ejemplo, Vector2i(2, 0) se representa con la flecha derecha y el numero 2.
+func _mostrar_movimientos() -> void:
+	var movimientos_agrupados: Array[Vector2i] = []
+
+	for movimiento in _obtener_movimientos_validos():
+		var direccion := obtener_direccion(movimiento)
+		var cantidad := obtener_cantidad(movimiento)
+
+		# Dos movimientos consecutivos iguales se muestran como una sola cantidad.
+		if not movimientos_agrupados.is_empty() and obtener_direccion(movimientos_agrupados[-1]) == direccion:
+			movimientos_agrupados[-1] += direccion * cantidad
+		else:
+			movimientos_agrupados.append(direccion * cantidad)
+
+	for movimiento in movimientos_agrupados:
+		_crear_indicador(
+			movimientos_contenedor,
+			_obtener_textura_movimiento(obtener_direccion(movimiento)),
+			obtener_cantidad(movimiento)
+		)
+
+	movimientos_contenedor.visible = movimientos_contenedor.get_child_count() > 0
+
+
+# Ataque y defensa usan un unico icono cada uno, siempre a la izquierda del valor.
+func _mostrar_atributos() -> void:
+	if ataque > 0:
+		_crear_indicador(atributos_contenedor, TEXTURA_ATAQUE, ataque)
+
+	if defensa > 0:
+		_crear_indicador(atributos_contenedor, TEXTURA_DEFENSA, defensa)
+
+	atributos_contenedor.visible = atributos_contenedor.get_child_count() > 0
+
+
+# Deja la lista de movimientos con el maximo permitido.
+func _limitar_movimientos() -> void:
+	if movimientos.size() <= MAX_MOVIMIENTOS:
+		return
+
+	push_warning("La carta solo puede tener hasta %s movimientos. Se ignoraron los movimientos extra." % MAX_MOVIMIENTOS)
+	movimientos.resize(MAX_MOVIMIENTOS)
+
+
+# Devuelve los movimientos validos en orden, respetando el limite de la carta.
+func _obtener_movimientos_validos() -> Array[Vector2i]:
+	var movimientos_validos: Array[Vector2i] = []
+
+	for indice in range(mini(movimientos.size(), MAX_MOVIMIENTOS)):
+		var movimiento := movimientos[indice]
+		var direccion := obtener_direccion(movimiento)
+		var cantidad := obtener_cantidad(movimiento)
+
+		if direccion == Vector2i.ZERO or cantidad == 0:
+			push_warning("Movimiento invalido en carta: %s" % movimiento)
+			continue
+
+		movimientos_validos.append(direccion * cantidad)
+
+	return movimientos_validos
+
+
+# Busca el personaje asignado o, como respaldo, uno llamado Personaje en la escena.
+func _obtener_personaje() -> Node:
+	var personaje := get_node_or_null(ruta_personaje)
+	if personaje != null:
+		return personaje
+
+	if get_tree().current_scene == null:
+		return null
+
+	return get_tree().current_scene.find_child("Personaje", true, false)
+
+
+# Normaliza un movimiento y devuelve solo su direccion valida.
+static func obtener_direccion(movimiento: Vector2i) -> Vector2i:
+	if movimiento == Vector2i.ZERO:
+		return Vector2i.ZERO
+
+	var direccion := Vector2i(signi(movimiento.x), signi(movimiento.y))
+	if direccion.x != 0 and direccion.y != 0 and absi(movimiento.x) != absi(movimiento.y):
+		return Vector2i.ZERO
+
+	return direccion
+
+
+# Calcula la cantidad de casillas que representa un movimiento.
+static func obtener_cantidad(movimiento: Vector2i) -> int:
+	return maxi(absi(movimiento.x), absi(movimiento.y))
+
+
+# Devuelve una direccion random valida usando el generador indicado.
+static func obtener_direccion_random(generador_random: RandomNumberGenerator) -> Vector2i:
+	var indice := generador_random.randi_range(0, DIRECCIONES_VALIDAS.size() - 1)
+	return DIRECCIONES_VALIDAS[indice]
+
+
+# Normaliza los datos de una carta para que todas usen la misma estructura.
+static func normalizar_datos(datos: Dictionary) -> Dictionary:
+	return {
+		"movimientos": copiar_movimientos(datos.get("movimientos", [])),
+		"ataque": maxi(int(datos.get("ataque", 0)), 0),
+		"defensa": maxi(int(datos.get("defensa", 0)), 0),
+	}
+
+
+# Copia los movimientos recibidos y conserva solo valores Vector2i.
+static func copiar_movimientos(movimientos_originales: Variant) -> Array[Vector2i]:
+	var movimientos_copiados: Array[Vector2i] = []
+
+	if not movimientos_originales is Array:
+		return movimientos_copiados
+
+	for movimiento in movimientos_originales:
+		if movimientos_copiados.size() >= MAX_MOVIMIENTOS:
+			break
+
+		if movimiento is Vector2i:
+			movimientos_copiados.append(movimiento)
+
+	return movimientos_copiados
+
+
+# Aplica datos normalizados a una carta visual.
+static func aplicar_datos(carta: Node, datos: Dictionary) -> void:
+	var datos_normalizados := normalizar_datos(datos)
+	carta.set("movimientos", datos_normalizados["movimientos"])
+	carta.set("ataque", datos_normalizados["ataque"])
+	carta.set("defensa", datos_normalizados["defensa"])
+
+
+# Crea un indicador visual con icono y numero dentro del contenedor indicado.
+func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int) -> void:
+	var indicador := HBoxContainer.new()
+	indicador.add_theme_constant_override("separation", 1)
+	indicador.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	contenedor.add_child(indicador)
+
+	var icono := TextureRect.new()
+	icono.custom_minimum_size = TAMANO_ICONO
+	icono.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icono.texture = textura
+	icono.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icono.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icono.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	indicador.add_child(icono)
+
+	var numero := Label.new()
+	numero.text = str(cantidad)
+	numero.add_theme_font_size_override("font_size", TAMANO_FUENTE)
+	numero.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	numero.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	indicador.add_child(numero)
+
+
+# Devuelve la textura de flecha correspondiente a una direccion.
+func _obtener_textura_movimiento(direccion: Vector2i) -> Texture2D:
+	return TEXTURAS_MOVIMIENTO.get(direccion, null) as Texture2D

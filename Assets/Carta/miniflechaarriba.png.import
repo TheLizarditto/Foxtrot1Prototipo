@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://db1v8ogvr0j8w"
-path="res://.godot/imported/cuadro.png-e6a8286c3d73a0f6bbbd3ad94199cb0c.ctex"
+uid="uid://ddouit48rov8n"
+path="res://.godot/imported/miniflechaarriba.png-436642fa2306ec91f28bfe1708456bd4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/cuadro.png"
-dest_files=["res://.godot/imported/cuadro.png-e6a8286c3d73a0f6bbbd3ad94199cb0c.ctex"]
+source_file="res://Assets/Carta/miniflechaarriba.png"
+dest_files=["res://.godot/imported/miniflechaarriba.png-436642fa2306ec91f28bfe1708456bd4.ctex"]
 
 [params]
 

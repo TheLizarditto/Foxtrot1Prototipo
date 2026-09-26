@@ -2,13 +2,32 @@
 
 [ext_resource type="PackedScene" uid="uid://dv85vfyrw6o4c" path="res://Scenes/tablero.tscn" id="1_h0ha0"]
 [ext_resource type="PackedScene" uid="uid://crwd6dpdbts15" path="res://Scenes/personaje.tscn" id="2_bo1nx"]
+[ext_resource type="PackedScene" uid="uid://b4c31gckogab5" path="res://Scenes/turno.tscn" id="3_turno"]
+[ext_resource type="PackedScene" uid="uid://c0p7u0fqj3qnl" path="res://Scenes/baraja.tscn" id="5_7qqcn"]
+[ext_resource type="PackedScene" uid="uid://crn0o8ffxj31a" path="res://Scenes/mazo_robo.tscn" id="6_vuy8l"]
+[ext_resource type="PackedScene" uid="uid://cmk7l3x5ocbqa" path="res://Scenes/mazo_descarte.tscn" id="7_ses36"]
+[ext_resource type="PackedScene" path="res://Scenes/mano.tscn" id="8_mano"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 
 [node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
 
 [node name="Camera2D" type="Camera2D" parent="Tablero" unique_id=496038153]
-zoom = Vector2(1.5, 1.5)
 
 [node name="Personaje" parent="." unique_id=466476145 instance=ExtResource("2_bo1nx")]
 scale = Vector2(2, 2)
+
+[node name="Turno" parent="." unique_id=1889608141 instance=ExtResource("3_turno")]
+
+[node name="Baraja" parent="." unique_id=1460104477 instance=ExtResource("5_7qqcn")]
+visible = false
+
+[node name="MazoRobo" parent="." unique_id=2142932877 instance=ExtResource("6_vuy8l")]
+position = Vector2(312, 220)
+
+[node name="MazoDescarte" parent="." unique_id=1951663907 instance=ExtResource("7_ses36")]
+position = Vector2(-304, 220)
+
+[node name="Mano" parent="." unique_id=1620002229 instance=ExtResource("8_mano")]
+z_index = 10
+position = Vector2(4, 220)
