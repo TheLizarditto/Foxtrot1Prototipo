@@ -10,10 +10,19 @@ var posicion := Vector2.ZERO
 func _ready() -> void:
 	_actualizar_posicion_centro()
 	
-# Recibe una direccion de movimiento y actualiza la posicion en la grilla.
-func movimiento(direccion: Vector2i) -> void:
-	posicion = tablero.limitar_posicion_en_tablero(posicion + Vector2(direccion))
+# Recibe un paso de movimiento y lo aplica solo si la celda destino existe.
+func movimiento(direccion: Vector2i) -> bool:
+	var paso := Vector2i(signi(direccion.x), signi(direccion.y))
+	if paso == Vector2i.ZERO:
+		return false
+
+	var destino := Vector2i(posicion) + paso
+	if not tablero.es_posicion_valida(destino.x, destino.y):
+		return false
+
+	posicion = destino
 	_actualizar_sprite()
+	return true
 	
 # Calcula la celda central del tablero y mueve ahi al personaje.
 func _actualizar_posicion_centro() -> void:
