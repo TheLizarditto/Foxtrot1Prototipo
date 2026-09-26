@@ -18,12 +18,12 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 
 var cartas: Array[Dictionary] = []
 
-# Inicializa el contador temporal del mazo de robo.
+
 func _ready() -> void:
 	_actualizar_contador()
 
 
-# Carga las cartas recibidas en la cola del mazo de robo.
+# Carga un conjunto inicial de cartas en el mazo.
 func cargar_cartas(datos_cartas: Array[Dictionary]) -> void:
 	vaciar()
 
@@ -31,19 +31,19 @@ func cargar_cartas(datos_cartas: Array[Dictionary]) -> void:
 		insertar_carta(datos)
 
 
-# Vacia todas las cartas guardadas en el mazo de robo.
+# Limpia todas las cartas del mazo.
 func vaciar() -> void:
 	cartas.clear()
 	_actualizar_contador()
 
 
-# Inserta una carta al final de la cola del mazo de robo.
+# Inserta una carta en el mazo.
 func insertar_carta(datos: Dictionary) -> void:
 	cartas.append(Carta.normalizar_datos(datos))
 	_actualizar_contador()
 
 
-# Anima las cartas recibidas entrando al mazo de robo y las inserta en el mismo orden.
+# Anima e inserta cartas progresivamente dentro del mazo.
 func cargar_cartas_animadas(datos_cartas: Array[Dictionary], origen_global: Variant = null) -> void:
 	vaciar()
 
@@ -57,7 +57,7 @@ func cargar_cartas_animadas(datos_cartas: Array[Dictionary], origen_global: Vari
 		carta.queue_free()
 
 
-# Recarga el mazo de robo con las cartas mezcladas del mazo de descarte si esta vacio.
+# Transfiere y mezcla las cartas del descarte hacia este mazo cuando esta vacio.
 func recargar_desde_descarte(mazo_descarte: MazoDescarte) -> bool:
 	if not esta_vacio():
 		return true
@@ -71,7 +71,7 @@ func recargar_desde_descarte(mazo_descarte: MazoDescarte) -> bool:
 	return not esta_vacio()
 
 
-# Devuelve los datos de la proxima carta del mazo de robo.
+# Extrae la carta superior del mazo.
 func robar_carta() -> Dictionary:
 	if cartas.is_empty():
 		return {}
@@ -81,7 +81,7 @@ func robar_carta() -> Dictionary:
 	return datos.duplicate(true)
 
 
-# Devuelve la proxima carta y recarga desde el descarte si el mazo queda vacio.
+# Roba una carta y recarga desde el descarte antes o despues si es necesario.
 func robar_carta_con_recarga(mazo_descarte: MazoDescarte) -> Dictionary:
 	if esta_vacio():
 		await recargar_desde_descarte(mazo_descarte)
@@ -94,17 +94,17 @@ func robar_carta_con_recarga(mazo_descarte: MazoDescarte) -> Dictionary:
 	return datos
 
 
-# Devuelve la cantidad de cartas guardadas en el mazo de robo.
+# Devuelve cuantas cartas quedan en el mazo.
 func cantidad() -> int:
 	return cartas.size()
 
 
-# Indica si el mazo de robo no tiene cartas disponibles.
+# Indica si no quedan cartas.
 func esta_vacio() -> bool:
 	return cartas.is_empty()
 
 
-# Actualiza el contador temporal con la cantidad actual de cartas.
+# Mantiene actualizado el texto del contador visual.
 func _actualizar_contador() -> void:
 	if not is_node_ready():
 		return
@@ -112,10 +112,12 @@ func _actualizar_contador() -> void:
 	contador_cartas.text = str(cantidad())
 
 
-# Crea una carta visual en la posicion de origen de la animacion.
+# Instancia la carta temporal para la animacion de entrada al mazo.
 func _crear_carta_visual_animacion(datos_carta: Dictionary, posicion_origen: Vector2) -> Node2D:
 	var carta := ESCENA_CARTA.instantiate() as Node2D
 	Carta.aplicar_datos(carta, datos_carta)
+	if carta.has_method("mostrar_reverso"):
+		carta.mostrar_reverso()
 	carta.modulate.a = 0.0
 	carta.z_index = 100
 
@@ -128,7 +130,7 @@ func _crear_carta_visual_animacion(datos_carta: Dictionary, posicion_origen: Vec
 	return carta
 
 
-# Anima una carta visual hasta la posicion del mazo de robo.
+# Anima una carta individual viajando hacia el mazo de robo.
 func _animar_carta_entrando(carta: Node2D, factor_aceleracion: float) -> void:
 	var duracion_aparicion := _obtener_duracion_aparicion(factor_aceleracion)
 	var espera_visible := _obtener_espera_visible(factor_aceleracion)
@@ -150,7 +152,7 @@ func _animar_carta_entrando(carta: Node2D, factor_aceleracion: float) -> void:
 	await tween.finished
 
 
-# Devuelve la posicion desde donde aparecen las cartas de la animacion.
+# Resuelve la posicion inicial desde la que parte la carta antes de entrar al mazo.
 func _obtener_posicion_origen_animacion(origen_global: Variant) -> Vector2:
 	if origen_global is Vector2:
 		return origen_global
@@ -158,7 +160,7 @@ func _obtener_posicion_origen_animacion(origen_global: Variant) -> Vector2:
 	return global_position + desplazamiento_carta_sobre_mazo
 
 
-# Calcula que tan rapida debe ser la animacion segun la cantidad de cartas.
+# Calcula un factor de 0 a 1 para acelerar las animaciones si hay muchas cartas.
 func _obtener_factor_aceleracion_animacion(cantidad_cartas: int) -> float:
 	var rango := cantidad_cartas_animacion_rapida - cantidad_cartas_animacion_lenta
 	if rango <= 0:
@@ -171,21 +173,21 @@ func _obtener_factor_aceleracion_animacion(cantidad_cartas: int) -> float:
 	)
 
 
-# Devuelve la duracion de aparicion ajustada por la cantidad de cartas.
+# Devuelve el tiempo de aparicion escalado por la cantidad de cartas.
 func _obtener_duracion_aparicion(factor_aceleracion: float) -> float:
 	return _interpolar_por_aceleracion(max_duracion_aparicion_carta, min_duracion_aparicion_carta, factor_aceleracion)
 
 
-# Devuelve el tiempo visible de cada carta ajustado por la cantidad de cartas.
+# Devuelve el tiempo de espera visible escalado por la cantidad de cartas.
 func _obtener_espera_visible(factor_aceleracion: float) -> float:
 	return _interpolar_por_aceleracion(max_espera_carta_visible, min_espera_carta_visible, factor_aceleracion)
 
 
-# Devuelve la duracion de entrada al mazo ajustada por la cantidad de cartas.
+# Devuelve el tiempo de desplazamiento al mazo escalado por la cantidad de cartas.
 func _obtener_duracion_entrada(factor_aceleracion: float) -> float:
 	return _interpolar_por_aceleracion(max_duracion_entrada_mazo, min_duracion_entrada_mazo, factor_aceleracion)
 
 
-# Interpola entre el valor lento y rapido usando el factor de aceleracion.
+# Interpola un valor entre lento y rapido segun el factor de aceleracion.
 func _interpolar_por_aceleracion(valor_lento: float, valor_rapido: float, factor_aceleracion: float) -> float:
 	return lerpf(valor_lento, valor_rapido, factor_aceleracion)

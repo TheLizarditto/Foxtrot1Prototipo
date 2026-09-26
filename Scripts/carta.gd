@@ -37,6 +37,7 @@ const TEXTURAS_MOVIMIENTO := {
 
 @export var tamano_carta := Vector2i(96, 128)
 @export var sprite_fondo: Texture2D
+@export var sprite_reverso: Texture2D
 @export var movimientos: Array[Vector2i] = []
 @export var ataque := 0
 @export var defensa := 0
@@ -48,6 +49,7 @@ const TEXTURAS_MOVIMIENTO := {
 @onready var atributos_contenedor: HBoxContainer = $Contenido/Atributos
 
 var ejecutando := false
+var boca_abajo := false
 
 # Inicializa la carta, ajusta sus valores y muestra movimientos y atributos.
 func _ready() -> void:
@@ -56,12 +58,39 @@ func _ready() -> void:
 	delay_entre_movimientos = maxf(delay_entre_movimientos, 0.0)
 	_limitar_movimientos()
 
-	fondo.texture = sprite_fondo
-	if sprite_fondo != null:
-		fondo.scale = Vector2(tamano_carta) / sprite_fondo.get_size()
-
 	_mostrar_movimientos()
 	_mostrar_atributos()
+
+	if boca_abajo:
+		mostrar_reverso()
+	else:
+		mostrar_frente()
+
+
+# Muestra la cara frontal de la carta (frente) con sus datos.
+func mostrar_frente() -> void:
+	boca_abajo = false
+	fondo.texture = sprite_fondo
+	_actualizar_escala_fondo()
+	var contenido := get_node_or_null("Contenido") as CanvasItem
+	if contenido != null:
+		contenido.visible = true
+
+
+# Muestra el reverso de la carta (boca abajo) ocultando sus datos.
+func mostrar_reverso() -> void:
+	boca_abajo = true
+	fondo.texture = sprite_reverso
+	_actualizar_escala_fondo()
+	var contenido := get_node_or_null("Contenido") as CanvasItem
+	if contenido != null:
+		contenido.visible = false
+
+
+# Ajusta la escala del sprite de fondo segun la textura cargada.
+func _actualizar_escala_fondo() -> void:
+	if fondo != null and fondo.texture != null:
+		fondo.scale = Vector2(tamano_carta) / fondo.texture.get_size()
 
 
 # Ejecuta los movimientos de la carta sobre el personaje indicado.
