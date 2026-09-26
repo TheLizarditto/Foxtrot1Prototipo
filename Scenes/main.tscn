@@ -28,6 +28,6 @@ position = Vector2(312, 220)
 [node name="MazoDescarte" parent="." unique_id=1951663907 instance=ExtResource("7_ses36")]
 position = Vector2(-304, 220)
 
-[node name="Mano" parent="." instance=ExtResource("8_mano")]
-position = Vector2(4, 220)
+[node name="Mano" parent="." unique_id=1620002229 instance=ExtResource("8_mano")]
 z_index = 10
+position = Vector2(4, 220)

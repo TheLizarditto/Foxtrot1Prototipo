@@ -31,8 +31,7 @@ func _process(_delta: float) -> void:
 	_actualizar_hover()
 
 
-# Roba la proxima carta del mazo y la agrega al final de la mano. Es para robar una carta
-# Devuelve false si la mano esta llena o el mazo no tiene cartas disponibles.
+# Roba una carta del mazo especificado y la agrega a la mano.
 func robar_carta(mazo_robo: MazoRobo) -> bool:
 	if mazo_robo == null or esta_llena():
 		return false
@@ -47,8 +46,7 @@ func robar_carta(mazo_robo: MazoRobo) -> bool:
 	return true
 
 
-# Roba cartas del mazo hasta completar la cantidad configurada de la mano. Es para llenar la mano
-# Devuelve la cantidad de cartas que pudo cargar.
+# Llena la mano sacando cartas del mazo de robo.
 func cargar_desde_mazo(mazo_robo: MazoRobo) -> int:
 	var cantidad_cargada := 0
 
@@ -58,7 +56,7 @@ func cargar_desde_mazo(mazo_robo: MazoRobo) -> int:
 	return cantidad_cargada
 
 
-# Roba una carta y la anima desde el mazo hasta su lugar en la mano.
+# Roba una carta del mazo realizando una animacion desde la posicion del mazo.
 func robar_carta_animada(mazo_robo: MazoRobo) -> bool:
 	if mazo_robo == null or esta_llena():
 		return false
@@ -74,7 +72,7 @@ func robar_carta_animada(mazo_robo: MazoRobo) -> bool:
 	return true
 
 
-# Reparte cartas una por una hasta completar la mano.
+# Llena la mano sacando cartas animadas una por una desde el mazo de robo.
 func cargar_desde_mazo_animada(mazo_robo: MazoRobo) -> int:
 	var cantidad_cargada := 0
 
@@ -87,12 +85,12 @@ func cargar_desde_mazo_animada(mazo_robo: MazoRobo) -> int:
 	return cantidad_cargada
 
 
-# Devuelve la cantidad actual de cartas en la mano.
+# Devuelve la cantidad de cartas en la mano.
 func cantidad() -> int:
 	return mano.size()
 
 
-# Indica si la mano alcanzo la cantidad de cartas configurada.
+# Indica si la mano llego a su capacidad maxima.
 func esta_llena() -> bool:
 	return cantidad() >= maxi(cantidad_cartas_mano, 0)
 
@@ -102,7 +100,7 @@ func esta_vacia() -> bool:
 	return mano.is_empty()
 
 
-# Devuelve una copia de las cartas en el mismo orden en que fueron robadas.
+# Devuelve una copia de las cartas que componen la mano actual.
 func obtener_cartas() -> Array[Dictionary]:
 	var copia_cartas: Array[Dictionary] = []
 
@@ -112,7 +110,7 @@ func obtener_cartas() -> Array[Dictionary]:
 	return copia_cartas
 
 
-# Guarda una carta y crea su representacion visual.
+# Registra la carta en la mano interna y crea su representacion visual.
 func _agregar_carta(datos_carta: Dictionary) -> Node2D:
 	mano.append(Carta.normalizar_datos(datos_carta))
 
@@ -123,7 +121,7 @@ func _agregar_carta(datos_carta: Dictionary) -> Node2D:
 	return carta_visual
 
 
-# Eleva la carta, la gira para mostrar su frente y la lleva en arco a la mano.
+# Anima la llegada de una carta desde el mazo hacia su lugar en el abanico.
 func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	var total := cartas_visuales.size()
 	var indice := total - 1
@@ -134,17 +132,14 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	var tamano_carta := Vector2(carta_visual.get("tamano_carta"))
 	var posicion_elevada := posicion_inicial + tamano_carta * desplazamiento_elevacion_relativo
 	var control_arco := (posicion_elevada + posicion_destino) / 2.0 + Vector2(0.0, -altura_animacion_robo)
-	var contenido := carta_visual.get_node_or_null("Contenido") as CanvasItem
 
 	_acomodar_cartas_existentes(carta_visual, duracion_levantar_carta)
+	carta_visual.mostrar_atras()
 	carta_visual.position = posicion_inicial
 	carta_visual.rotation = 0.0
 	carta_visual.scale = escala_inicial_robo
 	carta_visual.modulate = color_carta_oculta
 	carta_visual.z_index = total + 1
-
-	if contenido != null:
-		contenido.visible = false
 
 	var tween := create_tween()
 	var levantar := tween.tween_property(
@@ -175,7 +170,7 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 		maxf(duracion_girar_carta, 0.0)
 	)
 
-	tween.tween_callback(_mostrar_frente_carta.bind(carta_visual, contenido, z_destino))
+	tween.tween_callback(_mostrar_frente_carta.bind(carta_visual, z_destino))
 
 	var segunda_mitad := tween.tween_method(
 		_mover_carta_en_arco.bind(carta_visual, posicion_elevada, control_arco, posicion_destino),
@@ -201,7 +196,7 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	_actualizar_disposicion_visual()
 
 
-# Abre lugar suavemente en el abanico mientras se reparte la carta nueva.
+# Reacomoda progresivamente las cartas que ya estaban en la mano.
 func _acomodar_cartas_existentes(carta_nueva: Node2D, duracion: float) -> void:
 	var total := cartas_visuales.size()
 	if total <= 1:
@@ -231,7 +226,7 @@ func _acomodar_cartas_existentes(carta_nueva: Node2D, duracion: float) -> void:
 		)
 
 
-# Mueve una carta sobre una curva cuadratica para evitar un recorrido recto.
+# Calcula la posicion sobre una curva cuadratica de Bezier.
 func _mover_carta_en_arco(
 	progreso: float,
 	carta_visual: Node2D,
@@ -248,15 +243,13 @@ func _mover_carta_en_arco(
 
 
 # Revela el contenido de la carta justo cuando termina de darse vuelta.
-func _mostrar_frente_carta(carta_visual: Node2D, contenido: CanvasItem, z_destino: int) -> void:
-	if contenido != null:
-		contenido.visible = true
-
+func _mostrar_frente_carta(carta_visual: Carta, z_destino: int) -> void:
+	carta_visual.mostrar_frente()
 	carta_visual.modulate = Color.WHITE
 	carta_visual.z_index = z_destino
 
 
-# Distribuye las cartas como un abanico, respetando su orden de izquierda a derecha.
+# Sincroniza la transformacion de cada carta visual segun la cantidad actual.
 func _actualizar_disposicion_visual() -> void:
 	var total := cartas_visuales.size()
 	if total == 0:
@@ -271,7 +264,7 @@ func _actualizar_disposicion_visual() -> void:
 		carta_visual.z_index = total - indice
 
 
-# Actualiza la carta enfocada solo cuando el mouse cambia de una carta a otra.
+# Detecta el mouse sobre la carta mas al frente y la despliega.
 func _actualizar_hover() -> void:
 	if not mano_lista_para_seleccion:
 		if carta_en_hover != null:
@@ -327,7 +320,7 @@ func _actualizar_hover() -> void:
 	tween_hover = tween
 
 
-# Devuelve la carta visible con mayor prioridad que contiene al mouse.
+# Busca la carta con mayor z_index que este colisionando con el puntero.
 func _obtener_carta_bajo_mouse() -> Node2D:
 	var mouse_local := to_local(get_global_mouse_position())
 	var carta_bajo_mouse: Node2D
@@ -344,8 +337,7 @@ func _obtener_carta_bajo_mouse() -> Node2D:
 	return carta_bajo_mouse
 
 
-# Comprueba las zonas interactivas de la carta en el abanico y, si esta enfocada,
-# tambien en su posicion desplegada.
+# Comprueba si el punto esta dentro de la carta en abanico o desplegada.
 func _contiene_mouse(carta_visual: Node2D, mouse_local: Vector2) -> bool:
 	var indice := cartas_visuales.find(carta_visual)
 	if indice < 0:
@@ -366,7 +358,7 @@ func _contiene_mouse(carta_visual: Node2D, mouse_local: Vector2) -> bool:
 	return absf(punto_desplegado.x) <= tamano_carta.x / 2.0 and absf(punto_desplegado.y) <= tamano_carta.y / 2.0
 
 
-# Calcula la posicion de una carta dentro del abanico.
+# Calcula la posicion de una carta dentro del arco segun su indice.
 func _obtener_posicion_carta(indice: int, total: int) -> Vector2:
 	var centro := float(total - 1) / 2.0
 	var distancia_centro := float(indice) - centro
