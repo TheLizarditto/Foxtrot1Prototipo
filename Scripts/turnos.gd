@@ -11,10 +11,17 @@ extends Node2D
 @onready var mano: Mano = get_node(ruta_mano)
 @onready var boton_turno: TextureButton = $BotonTurno
 
+const SELECCION_DESCARTE := preload("res://Scripts/seleccion_descarte.gd")
+
 var turno_actual: int = 0
+var pasando_turno := false
+var seleccion_descarte: CanvasLayer
 
 # Prepara el primer turno cuando el nodo entra en escena.
 func _ready() -> void:
+	mano.accion_en_curso_cambiada.connect(_al_cambiar_accion_mano)
+	seleccion_descarte = SELECCION_DESCARTE.new()
+	add_child(seleccion_descarte)
 	await get_tree().process_frame
 	await iniciar_primer_turno()
 
@@ -37,12 +44,27 @@ func iniciar_primer_turno() -> void:
 func avanzar_turno() -> void:
 	turno_actual += 1
 
-# Responde al boton de turno rellenando los espacios libres antes de avanzar.
+# Permite elegir descartes y confirmar antes de rellenar la mano y avanzar.
 func _al_presionar_boton_turno() -> void:
+	if mano.accion_en_curso or boton_turno.disabled or pasando_turno:
+		return
+	pasando_turno = true
 	_bloquear_boton_turno(true)
+	mano.preparar_seleccion_descarte()
+	mano.visible = false
+	seleccion_descarte.abrir(mano.obtener_cartas())
+	var indices: Array[int] = await seleccion_descarte.confirmado
+	mano.visible = true
+	await mano.descartar_cartas(indices)
 	await _rellenar_mano_para_siguiente_turno()
 	avanzar_turno()
+	pasando_turno = false
+	mano.mano_lista_para_seleccion = not mano.esta_vacia()
 	_bloquear_boton_turno(false)
+
+
+func _al_cambiar_accion_mano(en_curso: bool) -> void:
+	_bloquear_boton_turno(en_curso or pasando_turno)
 
 
 # Roba solo las cartas necesarias; si el mazo se vacia, lo recarga desde el descarte.

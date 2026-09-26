@@ -1,6 +1,8 @@
 extends Node2D
 class_name Mano
 
+signal accion_en_curso_cambiada(en_curso: bool)
+
 const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 
 @export var cantidad_cartas_mano := 7
@@ -25,6 +27,7 @@ var cartas_visuales: Array[Node2D] = []
 var carta_en_hover: Node2D
 var tween_hover: Tween
 var mano_lista_para_seleccion := false
+var accion_en_curso := false
 
 
 # Detecta la carta bajo el mouse y la muestra en una posicion legible.
@@ -37,8 +40,10 @@ func _input(event: InputEvent) -> void:
 	if not mano_lista_para_seleccion:
 		return
 
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_usar_carta_en_posicion(to_local(get_global_mouse_position()))
+	if event is InputEventMouseButton and event.pressed:
+		var posicion_local: Vector2 = get_global_transform_with_canvas().affine_inverse() * event.position
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			_usar_carta_en_posicion(posicion_local)
 	elif event is InputEventScreenTouch and event.pressed:
 		_usar_carta_en_posicion(get_global_transform_with_canvas().affine_inverse() * event.position)
 
@@ -133,8 +138,11 @@ func _agregar_carta(datos_carta: Dictionary) -> Node2D:
 	return carta_visual
 
 
-# Ejecuta la carta elegida, la elimina de la mano y la anima hasta el descarte.
+# Ejecuta la carta jugada y la anima hasta el mazo de descarte.
 func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
+	if not mano_lista_para_seleccion or accion_en_curso:
+		return
+
 	var carta_visual := carta_en_hover
 	if carta_visual == null or not is_instance_valid(carta_visual):
 		return
@@ -148,11 +156,25 @@ func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
 		return
 
 	mano_lista_para_seleccion = false
+	accion_en_curso = true
+	accion_en_curso_cambiada.emit(true)
+	get_viewport().set_input_as_handled()
 	if tween_hover != null and tween_hover.is_valid():
 		tween_hover.kill()
 	carta_en_hover = null
 
 	await carta_visual.ejecutar()
+	await _descartar_carta(carta_visual, mazo_descarte)
+	mano_lista_para_seleccion = not esta_vacia()
+	accion_en_curso = false
+	accion_en_curso_cambiada.emit(false)
+
+
+# Quita una carta y reutiliza la animacion y el almacenamiento del descarte.
+func _descartar_carta(carta_visual: Node2D, mazo_descarte: MazoDescarte) -> void:
+	var indice := cartas_visuales.find(carta_visual)
+	if indice < 0:
+		return
 	var datos_carta: Dictionary = mano[indice]
 	mano.remove_at(indice)
 	cartas_visuales.remove_at(indice)
@@ -160,7 +182,34 @@ func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
 	mazo_descarte.recibir_carta(datos_carta)
 	carta_visual.queue_free()
 	_actualizar_disposicion_visual()
+
+
+# Descarta las cartas confirmadas al terminar el turno, sin ejecutar sus efectos.
+func descartar_cartas(indices: Array[int]) -> void:
+	var mazo_descarte := get_node_or_null(ruta_mazo_descarte) as MazoDescarte
+	if mazo_descarte == null or accion_en_curso:
+		return
+	var elegidas: Array[Node2D] = []
+	for indice in indices:
+		if indice >= 0 and indice < cartas_visuales.size() and not elegidas.has(cartas_visuales[indice]):
+			elegidas.append(cartas_visuales[indice])
+	mano_lista_para_seleccion = false
+	accion_en_curso = true
+	accion_en_curso_cambiada.emit(true)
+	for carta_visual in elegidas:
+		await _descartar_carta(carta_visual, mazo_descarte)
 	mano_lista_para_seleccion = not esta_vacia()
+	accion_en_curso = false
+	accion_en_curso_cambiada.emit(false)
+
+
+# Suspende la interaccion con la mano mientras se eligen los descartes.
+func preparar_seleccion_descarte() -> void:
+	mano_lista_para_seleccion = false
+	if tween_hover != null and tween_hover.is_valid():
+		tween_hover.kill()
+	carta_en_hover = null
+	_actualizar_disposicion_visual()
 
 
 # Reutiliza el recorrido curvo de robo para llevar la carta jugada al descarte.
@@ -182,6 +231,12 @@ func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte
 		carta_visual,
 		"scale",
 		escala_inicial_robo,
+		maxf(duracion_llevar_a_mano, 0.0)
+	)
+	tween.parallel().tween_property(
+		carta_visual,
+		"rotation",
+		mazo_descarte.global_rotation - global_rotation,
 		maxf(duracion_llevar_a_mano, 0.0)
 	)
 	tween.parallel().tween_property(
