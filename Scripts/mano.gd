@@ -134,14 +134,12 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	var control_arco := (posicion_elevada + posicion_destino) / 2.0 + Vector2(0.0, -altura_animacion_robo)
 
 	_acomodar_cartas_existentes(carta_visual, duracion_levantar_carta)
+	carta_visual.mostrar_atras()
 	carta_visual.position = posicion_inicial
 	carta_visual.rotation = 0.0
 	carta_visual.scale = escala_inicial_robo
 	carta_visual.modulate = color_carta_oculta
 	carta_visual.z_index = total + 1
-
-	if carta_visual.has_method("mostrar_reverso"):
-		carta_visual.mostrar_reverso()
 
 	var tween := create_tween()
 	var levantar := tween.tween_property(
@@ -244,11 +242,9 @@ func _mover_carta_en_arco(
 	)
 
 
-# Revela la cara frontal de la carta al llegar a la mitad del giro.
-func _mostrar_frente_carta(carta_visual: Node2D, z_destino: int) -> void:
-	if carta_visual.has_method("mostrar_frente"):
-		carta_visual.mostrar_frente()
-
+# Revela el contenido de la carta justo cuando termina de darse vuelta.
+func _mostrar_frente_carta(carta_visual: Carta, z_destino: int) -> void:
+	carta_visual.mostrar_frente()
 	carta_visual.modulate = Color.WHITE
 	carta_visual.z_index = z_destino
 

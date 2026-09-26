@@ -126,6 +126,7 @@ func _crear_carta_visual_animacion(datos_carta: Dictionary, posicion_origen: Vec
 		escena_animacion = self
 
 	escena_animacion.add_child(carta)
+	carta.mostrar_atras()
 	carta.global_position = posicion_origen
 	return carta
 

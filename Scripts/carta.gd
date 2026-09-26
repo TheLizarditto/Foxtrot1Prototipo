@@ -37,13 +37,14 @@ const TEXTURAS_MOVIMIENTO := {
 
 @export var tamano_carta := Vector2i(96, 128)
 @export var sprite_fondo: Texture2D
-@export var sprite_reverso: Texture2D
+@export var sprite_atras: Texture2D
 @export var movimientos: Array[Vector2i] = []
 @export var ataque := 0
 @export var defensa := 0
 @export var ruta_personaje: NodePath = "../Personaje"
 @export var delay_entre_movimientos := 0.5
 
+@onready var atras: Sprite2D = $Atras
 @onready var fondo: Sprite2D = $Fondo
 @onready var movimientos_contenedor: HBoxContainer = $Contenido/Movimientos
 @onready var atributos_contenedor: HBoxContainer = $Contenido/Atributos
@@ -58,39 +59,28 @@ func _ready() -> void:
 	delay_entre_movimientos = maxf(delay_entre_movimientos, 0.0)
 	_limitar_movimientos()
 
+	var textura_atras := sprite_atras if sprite_atras != null else sprite_fondo
+	atras.texture = textura_atras
+	if textura_atras != null:
+		atras.scale = Vector2(tamano_carta) / textura_atras.get_size()
+
 	_mostrar_movimientos()
 	_mostrar_atributos()
-
-	if boca_abajo:
-		mostrar_reverso()
-	else:
-		mostrar_frente()
+	mostrar_frente()
 
 
-# Muestra la cara frontal de la carta (frente) con sus datos.
+# Muestra la cara frontal y oculta el dorso de la carta.
 func mostrar_frente() -> void:
-	boca_abajo = false
-	fondo.texture = sprite_fondo
-	_actualizar_escala_fondo()
-	var contenido := get_node_or_null("Contenido") as CanvasItem
-	if contenido != null:
-		contenido.visible = true
+	atras.visible = false
+	fondo.visible = true
+	$Contenido.visible = true
 
 
-# Muestra el reverso de la carta (boca abajo) ocultando sus datos.
-func mostrar_reverso() -> void:
-	boca_abajo = true
-	fondo.texture = sprite_reverso
-	_actualizar_escala_fondo()
-	var contenido := get_node_or_null("Contenido") as CanvasItem
-	if contenido != null:
-		contenido.visible = false
-
-
-# Ajusta la escala del sprite de fondo segun la textura cargada.
-func _actualizar_escala_fondo() -> void:
-	if fondo != null and fondo.texture != null:
-		fondo.scale = Vector2(tamano_carta) / fondo.texture.get_size()
+# Muestra el dorso y oculta los datos de la cara frontal.
+func mostrar_atras() -> void:
+	fondo.visible = false
+	$Contenido.visible = false
+	atras.visible = true
 
 
 # Ejecuta los movimientos de la carta sobre el personaje indicado.
