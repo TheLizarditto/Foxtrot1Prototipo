@@ -18,6 +18,7 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 @export var color_carta_oculta := Color(0.62, 0.66, 0.78, 1.0)
 @export var desplazamiento_hover := Vector2(0.0, -72.0)
 @export var duracion_hover := 0.15
+@export var ruta_mazo_descarte: NodePath = "../MazoDescarte"
 
 var mano: Array[Dictionary] = []
 var cartas_visuales: Array[Node2D] = []
@@ -29,6 +30,17 @@ var mano_lista_para_seleccion := false
 # Detecta la carta bajo el mouse y la muestra en una posicion legible.
 func _process(_delta: float) -> void:
 	_actualizar_hover()
+
+
+# Usa la carta tocada o clickeada antes de que los controles de su contenido consuman el evento.
+func _input(event: InputEvent) -> void:
+	if not mano_lista_para_seleccion:
+		return
+
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		_usar_carta_en_posicion(to_local(get_global_mouse_position()))
+	elif event is InputEventScreenTouch and event.pressed:
+		_usar_carta_en_posicion(get_global_transform_with_canvas().affine_inverse() * event.position)
 
 
 # Roba una carta del mazo especificado y la agrega a la mano.
@@ -119,6 +131,66 @@ func _agregar_carta(datos_carta: Dictionary) -> Node2D:
 	add_child(carta_visual)
 	cartas_visuales.append(carta_visual)
 	return carta_visual
+
+
+# Ejecuta la carta elegida, la elimina de la mano y la anima hasta el descarte.
+func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
+	var carta_visual := carta_en_hover
+	if carta_visual == null or not is_instance_valid(carta_visual):
+		return
+
+	if not _contiene_carta_seleccionada(carta_visual, posicion_local):
+		return
+
+	var indice := cartas_visuales.find(carta_visual)
+	var mazo_descarte := get_node_or_null(ruta_mazo_descarte) as MazoDescarte
+	if indice < 0 or mazo_descarte == null:
+		return
+
+	mano_lista_para_seleccion = false
+	if tween_hover != null and tween_hover.is_valid():
+		tween_hover.kill()
+	carta_en_hover = null
+
+	await carta_visual.ejecutar()
+	var datos_carta: Dictionary = mano[indice]
+	mano.remove_at(indice)
+	cartas_visuales.remove_at(indice)
+	await _animar_carta_al_descarte(carta_visual, mazo_descarte)
+	mazo_descarte.recibir_carta(datos_carta)
+	carta_visual.queue_free()
+	_actualizar_disposicion_visual()
+	mano_lista_para_seleccion = not esta_vacia()
+
+
+# Reutiliza el recorrido curvo de robo para llevar la carta jugada al descarte.
+func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte) -> void:
+	var inicio := carta_visual.position
+	var destino := to_local(mazo_descarte.global_position)
+	var control := (inicio + destino) / 2.0 + Vector2(0.0, -altura_animacion_robo)
+	carta_visual.z_index = 100
+
+	var tween := create_tween()
+	var recorrido := tween.tween_method(
+		_mover_carta_en_arco.bind(carta_visual, inicio, control, destino),
+		0.0,
+		1.0,
+		maxf(duracion_llevar_a_mano, 0.0)
+	)
+	recorrido.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(
+		carta_visual,
+		"scale",
+		escala_inicial_robo,
+		maxf(duracion_llevar_a_mano, 0.0)
+	)
+	tween.parallel().tween_property(
+		carta_visual,
+		"modulate:a",
+		0.0,
+		maxf(duracion_llevar_a_mano, 0.0)
+	)
+	await tween.finished
 
 
 # Anima la llegada de una carta desde el mazo hacia su lugar en el abanico.
@@ -323,11 +395,16 @@ func _actualizar_hover() -> void:
 # Busca la carta con mayor z_index que este colisionando con el puntero.
 func _obtener_carta_bajo_mouse() -> Node2D:
 	var mouse_local := to_local(get_global_mouse_position())
+	return _obtener_carta_en_posicion(mouse_local)
+
+
+# Busca la carta visible con mayor prioridad en la posicion local recibida.
+func _obtener_carta_en_posicion(posicion_local: Vector2) -> Node2D:
 	var carta_bajo_mouse: Node2D
 	var mayor_z := -INF
 
 	for carta_visual in cartas_visuales:
-		if not is_instance_valid(carta_visual) or not _contiene_mouse(carta_visual, mouse_local):
+		if not is_instance_valid(carta_visual) or not _contiene_mouse(carta_visual, posicion_local):
 			continue
 
 		if carta_visual.z_index > mayor_z:
@@ -356,6 +433,16 @@ func _contiene_mouse(carta_visual: Node2D, mouse_local: Vector2) -> bool:
 
 	var punto_desplegado := mouse_local - (posicion_base + desplazamiento_hover)
 	return absf(punto_desplegado.x) <= tamano_carta.x / 2.0 and absf(punto_desplegado.y) <= tamano_carta.y / 2.0
+
+
+# Solo considera la zona recta de la carta que ya fue desplegada.
+func _contiene_carta_seleccionada(carta_visual: Node2D, posicion_local: Vector2) -> bool:
+	var tamano_carta := Vector2(carta_visual.get("tamano_carta"))
+	var punto_seleccionado := (posicion_local - carta_visual.position).rotated(-carta_visual.rotation)
+	return (
+		absf(punto_seleccionado.x) <= tamano_carta.x / 2.0
+		and absf(punto_seleccionado.y) <= tamano_carta.y / 2.0
+	)
 
 
 # Calcula la posicion de una carta dentro del arco segun su indice.

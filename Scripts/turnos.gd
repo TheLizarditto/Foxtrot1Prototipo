@@ -37,9 +37,23 @@ func iniciar_primer_turno() -> void:
 func avanzar_turno() -> void:
 	turno_actual += 1
 
-# Responde al boton de turno avanzando al siguiente turno.
+# Responde al boton de turno rellenando los espacios libres antes de avanzar.
 func _al_presionar_boton_turno() -> void:
+	_bloquear_boton_turno(true)
+	await _rellenar_mano_para_siguiente_turno()
 	avanzar_turno()
+	_bloquear_boton_turno(false)
+
+
+# Roba solo las cartas necesarias; si el mazo se vacia, lo recarga desde el descarte.
+func _rellenar_mano_para_siguiente_turno() -> void:
+	while not mano.esta_llena():
+		if mazo_robo.esta_vacio():
+			if not await mazo_robo.recargar_desde_descarte(mazo_descarte):
+				return
+
+		if not await mano.robar_carta_animada(mazo_robo):
+			return
 
 
 # Recarga el mazo de robo desde el descarte cuando no quedan cartas para robar.
