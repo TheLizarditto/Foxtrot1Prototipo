@@ -78,12 +78,22 @@ func ejecutar(personaje: Node = null) -> void:
 
 	ejecutando = true
 	var movimientos_validos := _obtener_movimientos_validos()
+	var pasos_totales := 0
 
-	for indice in range(movimientos_validos.size()):
-		personaje.movimiento(movimientos_validos[indice])
+	for movimiento in movimientos_validos:
+		pasos_totales += obtener_cantidad(movimiento)
 
-		if indice < movimientos_validos.size() - 1 and delay_entre_movimientos > 0.0:
-			await get_tree().create_timer(delay_entre_movimientos).timeout
+	var paso_actual := 0
+	for movimiento in movimientos_validos:
+		var direccion := obtener_direccion(movimiento)
+		var cantidad_pasos := obtener_cantidad(movimiento)
+
+		for _paso in range(cantidad_pasos):
+			personaje.movimiento(direccion)
+			paso_actual += 1
+
+			if paso_actual < pasos_totales and delay_entre_movimientos > 0.0:
+				await get_tree().create_timer(delay_entre_movimientos).timeout
 
 	ejecutando = false
 
