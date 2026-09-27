@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Scripts/puntos_accion.gd" id="1_puntos"]
+[ext_resource type="Texture2D" path="res://Assets/PA/pa.png" id="2_pa"]
+
+[node name="PuntosAccion" type="Node2D"]
+script = ExtResource("1_puntos")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_pa")
+
+[node name="ContadorPuntos" type="Label" parent="."]
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.05, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 26
+text = "10"
+horizontal_alignment = 1
+vertical_alignment = 1
