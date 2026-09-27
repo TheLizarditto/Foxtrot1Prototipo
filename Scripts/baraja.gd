@@ -10,6 +10,8 @@ class_name Baraja
 @export var max_ataque := 3
 @export var min_defensa := 0
 @export var max_defensa := 3
+@export var min_costo_pa := 1
+@export var max_costo_pa := 5
 
 var cartas: Array[Dictionary] = []
 var generador_random := RandomNumberGenerator.new()
@@ -76,6 +78,7 @@ func _crear_datos_carta_random() -> Dictionary:
 		"movimientos": _crear_movimientos_random(),
 		"ataque": _obtener_entero_ordenado(min_ataque, max_ataque),
 		"defensa": _obtener_entero_ordenado(min_defensa, max_defensa),
+		"costo_pa": _obtener_entero_ordenado(maxi(min_costo_pa, 1), maxi(max_costo_pa, 1)),
 	}
 
 

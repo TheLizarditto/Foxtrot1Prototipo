@@ -41,6 +41,7 @@ const TEXTURAS_MOVIMIENTO := {
 @export var movimientos: Array[Vector2i] = []
 @export var ataque := 0
 @export var defensa := 0
+@export var costo_pa := 1
 @export var ruta_personaje: NodePath = "../Personaje"
 @export var delay_entre_movimientos := 0.5
 
@@ -48,6 +49,7 @@ const TEXTURAS_MOVIMIENTO := {
 @onready var fondo: Sprite2D = $Fondo
 @onready var movimientos_contenedor: HBoxContainer = $Contenido/Movimientos
 @onready var atributos_contenedor: HBoxContainer = $Contenido/Atributos
+@onready var costo_pa_etiqueta: Label = $Contenido/CostoPA
 
 var ejecutando := false
 var boca_abajo := false
@@ -56,6 +58,7 @@ var boca_abajo := false
 func _ready() -> void:
 	ataque = maxi(ataque, 0)
 	defensa = maxi(defensa, 0)
+	costo_pa = maxi(costo_pa, 1)
 	delay_entre_movimientos = maxf(delay_entre_movimientos, 0.0)
 	_limitar_movimientos()
 
@@ -66,6 +69,7 @@ func _ready() -> void:
 
 	_mostrar_movimientos()
 	_mostrar_atributos()
+	costo_pa_etiqueta.text = str(costo_pa)
 	mostrar_frente()
 
 
@@ -221,6 +225,7 @@ static func normalizar_datos(datos: Dictionary) -> Dictionary:
 		"movimientos": copiar_movimientos(datos.get("movimientos", [])),
 		"ataque": maxi(int(datos.get("ataque", 0)), 0),
 		"defensa": maxi(int(datos.get("defensa", 0)), 0),
+		"costo_pa": maxi(int(datos.get("costo_pa", 1)), 1),
 	}
 
 
@@ -247,6 +252,7 @@ static func aplicar_datos(carta: Node, datos: Dictionary) -> void:
 	carta.set("movimientos", datos_normalizados["movimientos"])
 	carta.set("ataque", datos_normalizados["ataque"])
 	carta.set("defensa", datos_normalizados["defensa"])
+	carta.set("costo_pa", datos_normalizados["costo_pa"])
 
 
 # Crea un indicador visual con icono y numero dentro del contenedor indicado.

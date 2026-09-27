@@ -24,6 +24,22 @@ func cantidad() -> int:
 	return puntos_disponibles
 
 
+# Indica si hay puntos suficientes para pagar el coste de una carta.
+func puede_gastar(cantidad_a_gastar: int) -> bool:
+	return puntos_disponibles >= maxi(cantidad_a_gastar, 0)
+
+
+# Descuenta puntos solo cuando el coste puede pagarse por completo.
+func gastar(cantidad_a_gastar: int) -> bool:
+	var coste := maxi(cantidad_a_gastar, 0)
+	if not puede_gastar(coste):
+		return false
+
+	puntos_disponibles -= coste
+	_actualizar_contador()
+	return true
+
+
 # Refleja el valor actual encima del sprite de puntos de acción.
 func _actualizar_contador() -> void:
 	if is_node_ready():

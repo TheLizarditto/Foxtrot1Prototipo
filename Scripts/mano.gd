@@ -21,6 +21,7 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 @export var desplazamiento_hover := Vector2(0.0, -72.0)
 @export var duracion_hover := 0.15
 @export var ruta_mazo_descarte: NodePath = "../MazoDescarte"
+@export var ruta_puntos_accion: NodePath = "../PuntosAccion"
 
 var mano: Array[Dictionary] = []
 var cartas_visuales: Array[Node2D] = []
@@ -152,7 +153,11 @@ func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
 
 	var indice := cartas_visuales.find(carta_visual)
 	var mazo_descarte := get_node_or_null(ruta_mazo_descarte) as MazoDescarte
-	if indice < 0 or mazo_descarte == null:
+	var puntos_accion := get_node_or_null(ruta_puntos_accion) as PuntosAccion
+	if indice < 0 or mazo_descarte == null or puntos_accion == null:
+		return
+
+	if not puntos_accion.gastar(carta_visual.costo_pa):
 		return
 
 	mano_lista_para_seleccion = false
