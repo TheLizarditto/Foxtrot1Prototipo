@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://crn0o8ffxj31a" path="res://Scenes/mazo_robo.tscn" id="6_vuy8l"]
 [ext_resource type="PackedScene" uid="uid://cmk7l3x5ocbqa" path="res://Scenes/mazo_descarte.tscn" id="7_ses36"]
 [ext_resource type="PackedScene" path="res://Scenes/mano.tscn" id="8_mano"]
+[ext_resource type="PackedScene" path="res://Scenes/puntos_accion.tscn" id="9_puntos_accion"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 
@@ -23,11 +24,14 @@ scale = Vector2(2, 2)
 visible = false
 
 [node name="MazoRobo" parent="." unique_id=2142932877 instance=ExtResource("6_vuy8l")]
-position = Vector2(312, 220)
+position = Vector2(312, 236)
 
 [node name="MazoDescarte" parent="." unique_id=1951663907 instance=ExtResource("7_ses36")]
-position = Vector2(-304, 220)
+position = Vector2(-300, 236)
+
+[node name="PuntosAccion" parent="." unique_id=1505677691 instance=ExtResource("9_puntos_accion")]
+position = Vector2(-208, 128)
 
 [node name="Mano" parent="." unique_id=1620002229 instance=ExtResource("8_mano")]
 z_index = 10
-position = Vector2(4, 220)
+position = Vector2(4, 228)

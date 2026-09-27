@@ -4,11 +4,13 @@ extends Node2D
 @export var ruta_mazo_robo: NodePath = "../MazoRobo"
 @export var ruta_mazo_descarte: NodePath = "../MazoDescarte"
 @export var ruta_mano: NodePath = "../Mano"
+@export var ruta_puntos_accion: NodePath = "../PuntosAccion"
 
 @onready var baraja: Baraja = get_node(ruta_baraja)
 @onready var mazo_robo: MazoRobo = get_node(ruta_mazo_robo)
 @onready var mazo_descarte: MazoDescarte = get_node(ruta_mazo_descarte)
 @onready var mano: Mano = get_node(ruta_mano)
+@onready var puntos_accion: PuntosAccion = get_node(ruta_puntos_accion)
 @onready var boton_turno: TextureButton = $BotonTurno
 
 const SELECCION_DESCARTE := preload("res://Scripts/seleccion_descarte.gd")
@@ -43,6 +45,7 @@ func iniciar_primer_turno() -> void:
 # Avanza exactamente un turno cada vez que se llama.
 func avanzar_turno() -> void:
 	turno_actual += 1
+	puntos_accion.recargar()
 
 # Permite elegir descartes y confirmar antes de rellenar la mano y avanzar.
 func _al_presionar_boton_turno() -> void:
