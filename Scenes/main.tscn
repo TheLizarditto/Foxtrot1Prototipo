@@ -14,6 +14,7 @@
 [node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
 
 [node name="Camera2D" type="Camera2D" parent="Tablero" unique_id=496038153]
+zoom = Vector2(0.95, 0.95)
 
 [node name="Personaje" parent="." unique_id=466476145 instance=ExtResource("2_bo1nx")]
 scale = Vector2(2, 2)
@@ -24,14 +25,14 @@ scale = Vector2(2, 2)
 visible = false
 
 [node name="MazoRobo" parent="." unique_id=2142932877 instance=ExtResource("6_vuy8l")]
-position = Vector2(312, 236)
+position = Vector2(312, 267)
 
 [node name="MazoDescarte" parent="." unique_id=1951663907 instance=ExtResource("7_ses36")]
-position = Vector2(-300, 236)
+position = Vector2(-300, 267)
 
 [node name="PuntosAccion" parent="." unique_id=1505677691 instance=ExtResource("9_puntos_accion")]
 position = Vector2(-208, 128)
 
 [node name="Mano" parent="." unique_id=1620002229 instance=ExtResource("8_mano")]
 z_index = 10
-position = Vector2(4, 228)
+position = Vector2(4, 244)
