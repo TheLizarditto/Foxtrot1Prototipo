@@ -7,5 +7,6 @@
 script = ExtResource("1_7vwx0")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=94041577]
-scale = Vector2(0.5781251, 0.5546875)
+position = Vector2(0, -5)
+texture_filter = 1
 texture = ExtResource("1_ksl8w")
