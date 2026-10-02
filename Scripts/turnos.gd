@@ -59,6 +59,7 @@ func _al_presionar_boton_turno() -> void:
 	var indices: Array[int] = await seleccion_descarte.confirmado
 	mano.visible = true
 	await mano.descartar_cartas(indices)
+	await mano.ejecutar_cola()
 	await _rellenar_mano_para_siguiente_turno()
 	avanzar_turno()
 	pasando_turno = false
