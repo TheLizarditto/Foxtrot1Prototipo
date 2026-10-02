@@ -1,20 +1,31 @@
 [gd_scene format=3 uid="uid://crn0o8ffxj31a"]
 
 [ext_resource type="Script" uid="uid://cgudxq2f1v1ly" path="res://Scripts/mazo_robo.gd" id="1_kpr7f"]
-[ext_resource type="Texture2D" uid="uid://chl7oyhai3680" path="res://Assets/Carta/carta.png" id="2_ywvf4"]
+[ext_resource type="Script" path="res://Scripts/pila_cartas.gd" id="2_ywvf4"]
 
 [node name="MazoRobo" type="Node2D"]
 script = ExtResource("1_kpr7f")
 
-[node name="Sprite" type="Sprite2D" parent="."]
-texture = ExtResource("2_ywvf4")
+[node name="Pila" type="Node2D" parent="."]
+script = ExtResource("2_ywvf4")
 
 [node name="ContadorCartas" type="Label" parent="."]
 offset_left = -48.0
-offset_top = -96.0
+offset_top = -142.0
 offset_right = 48.0
-offset_bottom = -72.0
+offset_bottom = -118.0
 theme_override_font_sizes/font_size = 18
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Nombre" type="Label" parent="."]
+offset_left = -60.0
+offset_top = 76.0
+offset_right = 60.0
+offset_bottom = 100.0
+theme_override_colors/font_color = Color(0.88, 0.82, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+text = "ROBO"
+horizontal_alignment = 1
+mouse_filter = 2

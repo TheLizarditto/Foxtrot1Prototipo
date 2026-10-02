@@ -87,7 +87,7 @@ func mostrar_atras() -> void:
 	atras.visible = true
 
 
-# Ejecuta los movimientos de la carta sobre el personaje indicado.
+# Ejecuta los movimientos, el ataque y la defensa en orden, esperando sus animaciones.
 func ejecutar(personaje: Node = null) -> void:
 	if ejecutando:
 		return
@@ -112,11 +112,16 @@ func ejecutar(personaje: Node = null) -> void:
 		var cantidad_pasos := obtener_cantidad(movimiento)
 
 		for _paso in range(cantidad_pasos):
-			personaje.movimiento(direccion)
+			await personaje.movimiento(direccion)
 			paso_actual += 1
 
 			if paso_actual < pasos_totales and delay_entre_movimientos > 0.0:
 				await get_tree().create_timer(delay_entre_movimientos).timeout
+
+	if ataque > 0 and personaje.has_method("atacar"):
+		await personaje.atacar(ataque)
+	if defensa > 0 and personaje.has_method("defender"):
+		await personaje.defender(defensa)
 
 	ejecutando = false
 

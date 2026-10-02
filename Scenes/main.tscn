@@ -8,8 +8,24 @@
 [ext_resource type="PackedScene" uid="uid://cmk7l3x5ocbqa" path="res://Scenes/mazo_descarte.tscn" id="7_ses36"]
 [ext_resource type="PackedScene" path="res://Scenes/mano.tscn" id="8_mano"]
 [ext_resource type="PackedScene" path="res://Scenes/puntos_accion.tscn" id="9_puntos_accion"]
+[ext_resource type="Texture2D" path="res://Assets/fondo1_horizontal.png" id="10_fondo"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
+
+[node name="Fondo" type="CanvasLayer" parent="."]
+layer = -100
+
+[node name="Imagen" type="TextureRect" parent="Fondo"]
+texture_filter = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("10_fondo")
+expand_mode = 1
+stretch_mode = 6
 
 [node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
 
