@@ -259,7 +259,7 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	var indice := total - 1
 	var posicion_destino := _obtener_posicion_carta(indice, total)
 	var rotacion_destino := _obtener_rotacion_carta(indice, total)
-	var z_destino := total - indice
+	var z_destino := indice + 1
 	var posicion_inicial := to_local(origen_global)
 	var tamano_carta := Vector2(carta_visual.get("tamano_carta"))
 	var posicion_elevada := posicion_inicial + tamano_carta * desplazamiento_elevacion_relativo
@@ -339,7 +339,7 @@ func _acomodar_cartas_existentes(carta_nueva: Node2D, duracion: float) -> void:
 
 	for indice in range(total):
 		var carta_visual := cartas_visuales[indice]
-		carta_visual.z_index = total - indice
+		carta_visual.z_index = indice + 1
 
 		if carta_visual == carta_nueva:
 			continue
@@ -393,7 +393,7 @@ func _actualizar_disposicion_visual() -> void:
 		carta_visual.rotation = _obtener_rotacion_carta(indice, total)
 		carta_visual.scale = Vector2.ONE
 		carta_visual.modulate = Color.WHITE
-		carta_visual.z_index = total - indice
+		carta_visual.z_index = indice + 1
 
 
 # Detecta el mouse sobre la carta mas al frente y la despliega.
@@ -423,7 +423,7 @@ func _actualizar_hover() -> void:
 		if carta_visual == carta_en_hover:
 			continue
 
-		carta_visual.z_index = total - indice
+		carta_visual.z_index = indice + 1
 		tween.tween_property(
 			carta_visual,
 			"position",
