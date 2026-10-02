@@ -40,6 +40,12 @@ func gastar(cantidad_a_gastar: int) -> bool:
 	return true
 
 
+# Libera los PA reservados cuando una carta vuelve de la cola a la mano.
+func devolver(cantidad_a_devolver: int) -> void:
+	puntos_disponibles = mini(puntos_disponibles + maxi(cantidad_a_devolver, 0), maxi(maximo_puntos_por_turno, 0))
+	_actualizar_contador()
+
+
 # Refleja el valor actual encima del sprite de puntos de acción.
 func _actualizar_contador() -> void:
 	if is_node_ready():

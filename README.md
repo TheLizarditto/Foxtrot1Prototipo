@@ -13,9 +13,10 @@ Juego 2D por turnos desarrollado en Godot con GDScript. El jugador usa cartas pa
 Al iniciar, se genera y mezcla una baraja de 20 cartas. Las cartas se cargan en el mazo de robo y se reparten hasta completar una mano de 7 cartas. El personaje comienza en el centro de un tablero de 5 × 5 casillas.
 
 - Pasá el mouse sobre una carta para levantarla y leerla.
-- Hacé clic izquierdo en la carta desplegada para jugarla. Si tenés PA suficientes, se descuenta su costo, se ejecutan sus movimientos en orden y la carta pasa al descarte.
+- Hacé clic izquierdo en una carta para agregarla al final de la cola, visible en un marco blanco sin fondo a la derecha del tablero. Tiene espacio para dos cartas en vertical; al agregar más, se superponen dejando visible la parte superior de cada una. Si tenés PA suficientes, su costo queda reservado; sus movimientos se ejecutan al finalizar el turno.
+- Hacé clic en una carta de la cola para devolverla al extremo izquierdo de la mano y recuperar sus PA.
 - Presioná el botón de turno para elegir qué cartas descartar. Hacé clic para seleccionar o deseleccionar y luego confirmá; también podés confirmar sin descartar ninguna.
-- Después de confirmar, la mano se repone hasta 7 cartas y comienza el siguiente turno con los PA recargados.
+- Después de confirmar, primero se descartan las cartas elegidas de la mano. Luego se ejecutan las cartas de la cola de arriba hacia abajo y cada una viaja al descarte con la animación habitual. Finalmente, la mano se repone hasta 7 cartas y comienza el siguiente turno con los PA recargados.
 
 Si el mazo de robo se queda sin cartas al reponer la mano, el descarte se mezcla y se transfiere al mazo de robo. Si ambos mazos están vacíos, la reposición termina aunque la mano no esté completa.
 
@@ -26,7 +27,7 @@ Si el mazo de robo se queda sin cartas al reponer la mano, el descarte se mezcla
 - Generación aleatoria de cartas con movimientos, ataque, defensa y costo de PA.
 - Mano en abanico con animaciones de robo, giro, reacomodo, selección y descarte.
 - Contadores visibles para los mazos de robo y descarte y para los PA disponibles.
-- Consumo de PA al jugar cartas y recarga automática al avanzar de turno.
+- Cola ordenada de cartas con reserva y devolución de PA, ejecución al finalizar el turno y recarga automática al avanzar.
 - Pantalla de selección de descartes con confirmación y distribución adaptable al ancho de la ventana.
 - Bloqueo de la interacción con la mano y el botón de turno mientras se resuelven las acciones correspondientes.
 
@@ -49,6 +50,8 @@ Estos valores se pueden ajustar desde las propiedades exportadas de los scripts 
 | Pausa entre pasos de una carta | 0,5 segundos | `Scripts/carta.gd` |
 
 Cada movimiento se guarda como un `Vector2i`: su dirección indica hacia dónde avanzar y su magnitud indica la cantidad de pasos. Las cartas muestran flechas y cantidades; los movimientos consecutivos en la misma dirección se agrupan visualmente.
+
+El marco de la cola usa `Assets/Carta/marco_cola.svg`. Para reemplazarlo, asigná otra textura a `sprite_cola` en el Inspector de `Mano`; se adapta al tamaño del recuadro. El interior mide 96 × 256 px (dos cartas de 96 × 128 px), con 4 px de margen por lado. La cola se reacomoda al agregar, devolver o ejecutar cartas.
 
 ## Estructura del proyecto
 

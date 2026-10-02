@@ -1,6 +1,18 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/mano.gd" id="1_mano"]
+[ext_resource type="Texture2D" path="res://Assets/Carta/marco_cola.svg" id="2_cola"]
 
 [node name="Mano" type="Node2D"]
 script = ExtResource("1_mano")
+
+[node name="ColaCartas" type="TextureRect" parent="."]
+z_index = -1
+offset_left = 260.0
+offset_top = -404.0
+offset_right = 364.0
+offset_bottom = -140.0
+mouse_filter = 2
+texture = ExtResource("2_cola")
+expand_mode = 1
+stretch_mode = 0
