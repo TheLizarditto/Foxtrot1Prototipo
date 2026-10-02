@@ -15,7 +15,7 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 @export var duracion_llevar_a_mano := 0.34
 @export var desplazamiento_elevacion_relativo := Vector2(-0.15, -0.33)
 @export var inclinacion_inicial_grados := -7.0
-@export var escala_inicial_robo := Vector2(0.92, 0.92)
+@export var escala_inicial_robo := Vector2.ONE
 @export var escala_minima_giro := 0.05
 @export var color_carta_oculta := Color(0.62, 0.66, 0.78, 1.0)
 @export var desplazamiento_hover := Vector2(0.0, -72.0)
@@ -91,13 +91,14 @@ func robar_carta_animada(mazo_robo: MazoRobo) -> bool:
 	if mazo_robo == null or esta_llena():
 		return false
 
+	var origen := mazo_robo.posicion_superior_global()
 	var datos_carta := mazo_robo.robar_carta()
 	if datos_carta.is_empty():
 		return false
 
 	mano_lista_para_seleccion = false
 	var carta_visual := _agregar_carta(datos_carta)
-	await _animar_carta_robada(carta_visual, mazo_robo.global_position)
+	await _animar_carta_robada(carta_visual, origen)
 	mano_lista_para_seleccion = esta_llena()
 	return true
 
@@ -294,7 +295,7 @@ func preparar_seleccion_descarte() -> void:
 # Reutiliza el recorrido curvo de robo para llevar la carta jugada al descarte.
 func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte) -> void:
 	var inicio := carta_visual.position
-	var destino := to_local(mazo_descarte.global_position)
+	var destino := to_local(mazo_descarte.posicion_entrada_global())
 	var control := (inicio + destino) / 2.0 + Vector2(0.0, -altura_animacion_robo)
 	carta_visual.z_index = 100
 
@@ -309,7 +310,7 @@ func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte
 	tween.parallel().tween_property(
 		carta_visual,
 		"scale",
-		escala_inicial_robo,
+		Vector2.ONE,
 		maxf(duracion_llevar_a_mano, 0.0)
 	)
 	tween.parallel().tween_property(
@@ -321,7 +322,7 @@ func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte
 	tween.parallel().tween_property(
 		carta_visual,
 		"modulate:a",
-		0.0,
+		1.0,
 		maxf(duracion_llevar_a_mano, 0.0)
 	)
 	await tween.finished
@@ -344,7 +345,7 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	carta_visual.position = posicion_inicial
 	carta_visual.rotation = 0.0
 	carta_visual.scale = escala_inicial_robo
-	carta_visual.modulate = color_carta_oculta
+	carta_visual.modulate = Color.WHITE
 	carta_visual.z_index = total + 1
 
 	var tween := create_tween()

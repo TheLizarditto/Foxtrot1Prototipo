@@ -64,8 +64,28 @@ func _actualizar_contador() -> void:
 		return
 
 	contador_cartas.text = str(cantidad())
+	$Pila.actualizar(cantidad(), cartas.back() if not cartas.is_empty() else {})
 
 
 # Mezcla el orden de la baraja de descarte.
 func mezclar() -> void:
 	cartas.shuffle()
+	_actualizar_contador()
+
+
+# Posiciones de la carta superior y de la proxima carta que aterriza.
+func posicion_superior_global() -> Vector2:
+	return $Pila.posicion_superior_global()
+
+
+func posicion_entrada_global() -> Vector2:
+	return $Pila.posicion_entrada_global()
+
+
+# Quita la carta visible al reciclar el descarte progresivamente.
+func extraer_carta() -> Dictionary:
+	if cartas.is_empty():
+		return {}
+	var datos: Dictionary = cartas.pop_back()
+	_actualizar_contador()
+	return datos.duplicate(true)
