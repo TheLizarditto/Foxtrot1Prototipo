@@ -145,7 +145,8 @@ func _mostrar_movimientos() -> void:
 		_crear_indicador(
 			movimientos_contenedor,
 			_obtener_textura_movimiento(obtener_direccion(movimiento)),
-			obtener_cantidad(movimiento)
+			obtener_cantidad(movimiento),
+			8
 		)
 
 	movimientos_contenedor.visible = movimientos_contenedor.get_child_count() > 0
@@ -261,7 +262,7 @@ static func aplicar_datos(carta: Node, datos: Dictionary) -> void:
 
 
 # Crea un indicador visual con icono y numero dentro del contenedor indicado.
-func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int) -> void:
+func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int, tamano_fuente: int = TAMANO_FUENTE) -> void:
 	var indicador := HBoxContainer.new()
 	indicador.add_theme_constant_override("separation", 1)
 	indicador.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -278,7 +279,8 @@ func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: i
 
 	var numero := Label.new()
 	numero.text = str(cantidad)
-	numero.add_theme_font_size_override("font_size", TAMANO_FUENTE)
+	numero.add_theme_font_size_override("font_size", tamano_fuente)
+	numero.add_theme_color_override("font_color", Color("eee1bb"))
 	numero.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	numero.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	indicador.add_child(numero)
