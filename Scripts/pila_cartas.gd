@@ -1,6 +1,6 @@
 extends Node2D
 
-const TEXTURA_BORDE := preload("res://Assets/Carta/carta.png")
+const TEXTURA_BORDE := preload("res://Assets/Carta/frente.svg")
 const TEXTURA_DORSO := preload("res://Assets/Carta/dorso.svg")
 const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 const TAMANO := Vector2(96, 128)
