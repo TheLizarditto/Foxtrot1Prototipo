@@ -7,6 +7,7 @@ const TAMANO := Vector2(96, 128)
 const DIRECCION_RELIEVE := Vector2(-0.38, -1.0)
 
 @export var es_descarte := false
+@onready var contador_cartas: Label = get_node_or_null("../ContadorCartas")
 var cantidad_visual := 0.0
 var cantidad_objetivo := 0
 var tween_altura: Tween
@@ -15,7 +16,7 @@ var datos_visibles: Dictionary = {}
 
 
 func _ready() -> void:
-	queue_redraw()
+	_ajustar_altura(cantidad_visual)
 
 
 func actualizar(total: int, datos_superiores: Dictionary = {}, animar := true) -> void:
@@ -55,8 +56,12 @@ func _desplazamiento_superior(total: float) -> Vector2:
 
 func _ajustar_altura(total: float) -> void:
 	cantidad_visual = total
+	var cima := _desplazamiento_superior(total)
 	if carta_superior != null:
-		carta_superior.position = _desplazamiento_superior(total)
+		carta_superior.position = cima
+	if contador_cartas != null:
+		# Mantiene el contador centrado y a 8 px del borde superior de la pila.
+		contador_cartas.position = position + cima + Vector2(-contador_cartas.size.x / 2.0, -TAMANO.y / 2.0 - 8.0 - contador_cartas.size.y)
 	queue_redraw()
 
 
