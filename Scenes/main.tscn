@@ -8,14 +8,14 @@
 [ext_resource type="PackedScene" uid="uid://cmk7l3x5ocbqa" path="res://Scenes/mazo_descarte.tscn" id="7_ses36"]
 [ext_resource type="PackedScene" path="res://Scenes/mano.tscn" id="8_mano"]
 [ext_resource type="PackedScene" path="res://Scenes/puntos_accion.tscn" id="9_puntos_accion"]
-[ext_resource type="Texture2D" path="res://Assets/fondo1_horizontal.png" id="10_fondo"]
+[ext_resource type="Texture2D" uid="uid://bttsm8032fd6c" path="res://Assets/fondo1_horizontal.png" id="10_fondo"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 
-[node name="Fondo" type="CanvasLayer" parent="."]
+[node name="Fondo" type="CanvasLayer" parent="." unique_id=783863895]
 layer = -100
 
-[node name="Imagen" type="TextureRect" parent="Fondo"]
+[node name="Imagen" type="TextureRect" parent="Fondo" unique_id=859595183]
 texture_filter = 1
 anchors_preset = 15
 anchor_right = 1.0
