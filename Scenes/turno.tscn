@@ -1,7 +1,10 @@
 [gd_scene format=3 uid="uid://b4c31gckogab5"]
 
 [ext_resource type="Script" uid="uid://bchnjeq43k8ey" path="res://Scripts/turnos.gd" id="1_ip8jh"]
-[ext_resource type="Texture2D" uid="uid://b78v280m3k8vq" path="res://Assets/Turno/botonturno.png" id="2_boton"]
+[ext_resource type="Texture2D" path="res://Assets/Turno/pasar_turno_normal.svg" id="2_boton"]
+[ext_resource type="Texture2D" path="res://Assets/Turno/pasar_turno_hover.svg" id="3_hover"]
+[ext_resource type="Texture2D" path="res://Assets/Turno/pasar_turno_pressed.svg" id="4_pressed"]
+[ext_resource type="Texture2D" path="res://Assets/Turno/pasar_turno_disabled.svg" id="5_disabled"]
 
 [node name="Turno" type="Node2D" unique_id=1298612257]
 script = ExtResource("1_ip8jh")
@@ -12,5 +15,10 @@ offset_top = 96.0
 offset_right = 240.0
 offset_bottom = 160.0
 texture_normal = ExtResource("2_boton")
+texture_pressed = ExtResource("4_pressed")
+texture_hover = ExtResource("3_hover")
+texture_disabled = ExtResource("5_disabled")
+tooltip_text = "Pasar turno"
+mouse_default_cursor_shape = 2
 
 [connection signal="pressed" from="BotonTurno" to="." method="_al_presionar_boton_turno"]

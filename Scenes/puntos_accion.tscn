@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://Scripts/puntos_accion.gd" id="1_puntos"]
-[ext_resource type="Texture2D" path="res://Assets/PA/pa.png" id="2_pa"]
+[ext_resource type="Texture2D" path="res://Assets/PA/indicador_pa.svg" id="2_pa"]
 
 [node name="PuntosAccion" type="Node2D"]
 script = ExtResource("1_puntos")
@@ -10,14 +10,27 @@ script = ExtResource("1_puntos")
 texture = ExtResource("2_pa")
 
 [node name="ContadorPuntos" type="Label" parent="."]
-offset_left = -32.0
-offset_top = -32.0
-offset_right = 32.0
-offset_bottom = 32.0
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_colors/font_outline_color = Color(0.05, 0.05, 0.05, 1)
-theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 26
+offset_left = -26.0
+offset_top = -5.0
+offset_right = 26.0
+offset_bottom = 24.0
+theme_override_colors/font_color = Color(0.933, 0.882, 0.733, 1)
+theme_override_colors/font_outline_color = Color(0.133, 0.129, 0.216, 1)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 22
 text = "10"
 horizontal_alignment = 1
 vertical_alignment = 1
+mouse_filter = 2
+
+[node name="Titulo" type="Label" parent="."]
+offset_left = -24.0
+offset_top = -24.0
+offset_right = 24.0
+offset_bottom = -9.0
+theme_override_colors/font_color = Color(0.835, 0.741, 0.510, 1)
+theme_override_font_sizes/font_size = 10
+text = "PA"
+horizontal_alignment = 1
+vertical_alignment = 1
+mouse_filter = 2
