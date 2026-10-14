@@ -1,6 +1,8 @@
 extends Node2D
 class_name Carta
 
+signal paso_resuelto(realizado: bool)
+
 const TEXTURA_ATAQUE := preload("res://Assets/Carta/miniespada.png")
 const TEXTURA_DEFENSA := preload("res://Assets/Carta/miniescudo.png")
 const MAX_MOVIMIENTOS := 4
@@ -112,7 +114,8 @@ func ejecutar(personaje: Node = null) -> void:
 		var cantidad_pasos := obtener_cantidad(movimiento)
 
 		for _paso in range(cantidad_pasos):
-			await personaje.movimiento(direccion)
+			var realizado: bool = await personaje.movimiento(direccion)
+			paso_resuelto.emit(realizado)
 			paso_actual += 1
 
 			if paso_actual < pasos_totales and delay_entre_movimientos > 0.0:
