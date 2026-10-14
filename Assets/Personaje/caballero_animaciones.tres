@@ -446,66 +446,90 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_abajo",
-"speed": 10.0
+"speed": 3.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
+}, {
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_abajo_derecha",
-"speed": 10.0
+"speed": 3.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
+}, {
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_abajo_izquierda",
-"speed": 10.0
+"speed": 3.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
+}, {
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_arriba",
-"speed": 10.0
+"speed": 3.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
+}, {
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_arriba_derecha",
-"speed": 10.0
+"speed": 3.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
+}, {
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_arriba_izquierda",
-"speed": 10.0
+"speed": 3.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
+}, {
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_derecha",
-"speed": 10.0
+"speed": 3.0
 }, {
 "frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_8ivx8")
+}, {
 "duration": 1.0,
 "texture": ExtResource("2_8ivx8")
 }],
 "loop": 1,
 "name": &"reposo_izquierda",
-"speed": 10.0
+"speed": 3.0
 }]
 metadata/escala_atlas = Vector2(0.12913907, 0.12913907)
 metadata/origen_atlas = Vector2(222, 222)
