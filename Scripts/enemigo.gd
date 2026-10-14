@@ -4,17 +4,24 @@ extends "res://Scripts/combatiente.gd"
 @export var distancia_tablero := 72.0
 
 const EFECTO_HERIDA := preload("res://Assets/Dragon2/herida.gdshader")
+const POSES_ORIGINALES := preload("res://Assets/Dragon2/femDrag_frontWalk.png")
+const ANIMACIONES_ATAQUE := [&"ataque_fuego", &"ataque_garras", &"ataque_mordida"]
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 var material_herida: ShaderMaterial
 var tween_herida: Tween
 var posicion_reposo := Vector2.ZERO
+var escala_reposo := Vector2.ONE
+var tween_ataque: Tween
+var atacando := false
 
 
 func _ready() -> void:
 	super._ready()
 	posicion_reposo = sprite.position
+	escala_reposo = sprite.scale
+	_preparar_animaciones_ataque()
 	material_herida = ShaderMaterial.new()
 	material_herida.shader = EFECTO_HERIDA
 	sprite.material = material_herida
@@ -57,6 +64,73 @@ func _mostrar_herida() -> void:
 func _mostrar_reposo() -> void:
 	sprite.play("idle")
 	sincronizar_reposo(sprite)
+
+
+func _preparar_animaciones_ataque() -> void:
+	sprite.sprite_frames = sprite.sprite_frames.duplicate() as SpriteFrames
+	var reposo_0 := sprite.sprite_frames.get_frame_texture("idle", 0)
+	var reposo_1 := sprite.sprite_frames.get_frame_texture("idle", 1)
+	var poses: Array[Texture2D] = []
+	for region in [Rect2(0, 0, 64, 96), Rect2(64, 0, 64, 96), Rect2(0, 96, 64, 96)]:
+		var pose := AtlasTexture.new()
+		pose.atlas = POSES_ORIGINALES
+		pose.region = region
+		poses.append(pose)
+	var secuencias := [
+		[reposo_0, reposo_1, poses[2], reposo_1],
+		[reposo_0, poses[0], poses[1], poses[2]],
+		[reposo_1, poses[2], poses[0], reposo_1],
+	]
+	for indice in range(ANIMACIONES_ATAQUE.size()):
+		var nombre: StringName = ANIMACIONES_ATAQUE[indice]
+		sprite.sprite_frames.add_animation(nombre)
+		sprite.sprite_frames.set_animation_loop(nombre, false)
+		sprite.sprite_frames.set_animation_speed(nombre, 8.0)
+		for textura in secuencias[indice]:
+			sprite.sprite_frames.add_frame(nombre, textura)
+
+
+func preparar_animacion_ataque(tipo: int) -> void:
+	if tween_herida != null and tween_herida.is_running():
+		await tween_herida.finished
+	atacando = true
+	sprite.position = posicion_reposo
+	sprite.rotation = 0.0
+	sprite.scale = escala_reposo
+	sprite.play(ANIMACIONES_ATAQUE[tipo])
+	tween_ataque = create_tween().set_parallel(true)
+	var preparacion := Vector2(0, -6) if tipo != 1 else Vector2(-8, -4)
+	tween_ataque.tween_property(sprite, "position", posicion_reposo + preparacion, 0.28)
+	tween_ataque.tween_property(sprite, "scale", escala_reposo * Vector2(1.04, 0.96), 0.28)
+	tween_ataque.tween_property(sprite, "rotation", -0.07 if tipo == 1 else 0.0, 0.28)
+	await tween_ataque.finished
+
+
+func obtener_boca_global() -> Vector2:
+	return sprite.to_global(Vector2(0, -62))
+
+
+func impactar_ataque(tipo: int) -> void:
+	if tween_ataque != null and tween_ataque.is_valid():
+		tween_ataque.kill()
+	sprite.pause()
+	tween_ataque = create_tween().set_parallel(true)
+	var empuje := Vector2(8, 4) if tipo == 1 else Vector2(0, 10 if tipo == 2 else 3)
+	tween_ataque.tween_property(sprite, "position", posicion_reposo + empuje, 0.1)
+	tween_ataque.tween_property(sprite, "rotation", 0.07 if tipo == 1 else 0.0, 0.1)
+	tween_ataque.tween_property(sprite, "scale", escala_reposo, 0.1)
+
+
+func terminar_animacion_ataque() -> void:
+	if tween_ataque != null and tween_ataque.is_running():
+		await tween_ataque.finished
+	tween_ataque = create_tween().set_parallel(true)
+	tween_ataque.tween_property(sprite, "position", posicion_reposo, 0.18)
+	tween_ataque.tween_property(sprite, "rotation", 0.0, 0.18)
+	tween_ataque.tween_property(sprite, "scale", escala_reposo, 0.18)
+	await tween_ataque.finished
+	atacando = false
+	_mostrar_reposo()
 
 
 func _draw() -> void:

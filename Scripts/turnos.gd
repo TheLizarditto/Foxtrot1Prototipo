@@ -12,12 +12,14 @@ extends Node2D
 @onready var mano: Mano = get_node(ruta_mano)
 @onready var puntos_accion: PuntosAccion = get_node(ruta_puntos_accion)
 @onready var boton_turno: TextureButton = $BotonTurno
+@onready var ataques_dragon: Node = $"../AtaquesDragon"
 
 const SELECCION_DESCARTE := preload("res://Scripts/seleccion_descarte.gd")
 
 var turno_actual: int = 0
 var pasando_turno := false
 var seleccion_descarte: CanvasLayer
+var combate_terminado := false
 
 # Prepara el primer turno cuando el nodo entra en escena.
 func _ready() -> void:
@@ -46,6 +48,7 @@ func iniciar_primer_turno() -> void:
 func avanzar_turno() -> void:
 	turno_actual += 1
 	puntos_accion.recargar()
+	ataques_dragon.preparar_siguiente()
 
 # Permite elegir descartes y confirmar antes de rellenar la mano y avanzar.
 func _al_presionar_boton_turno() -> void:
@@ -60,6 +63,11 @@ func _al_presionar_boton_turno() -> void:
 	mano.visible = true
 	await mano.descartar_cartas(indices)
 	await mano.ejecutar_cola()
+	if _terminar_si_no_hay_vida():
+		return
+	await ataques_dragon.ejecutar_ataque()
+	if _terminar_si_no_hay_vida():
+		return
 	await _rellenar_mano_para_siguiente_turno()
 	avanzar_turno()
 	pasando_turno = false
@@ -68,7 +76,18 @@ func _al_presionar_boton_turno() -> void:
 
 
 func _al_cambiar_accion_mano(en_curso: bool) -> void:
-	_bloquear_boton_turno(en_curso or pasando_turno)
+	_bloquear_boton_turno(en_curso or pasando_turno or combate_terminado)
+
+
+func _terminar_si_no_hay_vida() -> bool:
+	if ataques_dragon.dragon.puntos_vida > 0 and ataques_dragon.caballero.puntos_vida > 0:
+		return false
+	combate_terminado = true
+	pasando_turno = false
+	mano.mano_lista_para_seleccion = false
+	ataques_dragon.limpiar()
+	_bloquear_boton_turno(true)
+	return true
 
 
 # Roba solo las cartas necesarias; si el mazo se vacia, lo recarga desde el descarte.

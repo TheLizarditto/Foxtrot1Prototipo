@@ -50,6 +50,9 @@ z_index = -1
 script = ExtResource("12_corazones")
 ruta_combatiente = NodePath("../Enemigo")
 
+[node name="AtaquesDragon" type="Node" parent="."]
+script = ExtResource("14_ataques")
+
 [node name="Turno" parent="." unique_id=1889608141 instance=ExtResource("3_turno")]
 
 [node name="Baraja" parent="." unique_id=1460104477 instance=ExtResource("5_7qqcn")]
