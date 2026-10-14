@@ -3,6 +3,8 @@ extends Node2D
 @export var columnas := 5
 @export var filas := 5
 
+const VISTA_RECORRIDO := preload("res://Scripts/vista_recorrido.gd")
+
 @onready var cuadro: Sprite2D = $Cuadro
 @onready var tamano_celda := cuadro.texture.get_size()
 
@@ -10,6 +12,10 @@ extends Node2D
 func _ready() -> void:
 	
 	_generar_tablero()
+	var recorrido := Node2D.new()
+	recorrido.set_script(VISTA_RECORRIDO)
+	recorrido.name = "VistaRecorrido"
+	add_child(recorrido)
 	queue_redraw()
 	
 

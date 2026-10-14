@@ -2,6 +2,8 @@ extends Node2D
 class_name Mano
 
 signal accion_en_curso_cambiada(en_curso: bool)
+signal cola_cambiada
+signal paso_cola_resuelto(realizado: bool)
 
 const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 
@@ -187,6 +189,7 @@ func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
 		mano.remove_at(indice)
 		cartas_visuales.remove_at(indice)
 
+	cola_cambiada.emit()
 	mano_lista_para_seleccion = false
 	accion_en_curso = true
 	accion_en_curso_cambiada.emit(true)
@@ -210,14 +213,21 @@ func ejecutar_cola() -> void:
 	accion_en_curso_cambiada.emit(true)
 	while not cartas_en_cola.is_empty():
 		var carta_visual := cartas_en_cola[0]
+		carta_visual.paso_resuelto.connect(_al_resolver_paso_cola)
 		await carta_visual.ejecutar()
+		carta_visual.paso_resuelto.disconnect(_al_resolver_paso_cola)
 		await _animar_carta_al_descarte(carta_visual, mazo_descarte)
 		mazo_descarte.recibir_carta(cola.pop_front())
 		cartas_en_cola.pop_front()
 		carta_visual.queue_free()
 		await _animar_reordenamiento()
+	cola_cambiada.emit()
 	accion_en_curso = false
 	accion_en_curso_cambiada.emit(false)
+
+
+func _al_resolver_paso_cola(realizado: bool) -> void:
+	paso_cola_resuelto.emit(realizado)
 
 
 # Anima el traslado entre la mano y la cola y acomoda las cartas restantes.
