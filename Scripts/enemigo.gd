@@ -23,7 +23,7 @@ func _ready() -> void:
 		# El origen esta en los pies: todo el dragon queda fuera del tablero.
 		var borde_superior: float = -tablero.filas * tablero.tamano_celda.y / 2.0
 		global_position = tablero.to_global(Vector2(0, borde_superior - distancia_tablero))
-	sprite.play("idle")
+	_mostrar_reposo()
 	queue_redraw()
 
 
@@ -51,7 +51,12 @@ func _mostrar_herida() -> void:
 	tween_herida.tween_property(sprite, "position", posicion_reposo, 0.18)
 	tween_herida.parallel().tween_property(sprite, "rotation", 0.0, 0.18)
 	tween_herida.parallel().tween_property(material_herida, "shader_parameter/intensidad", 0.0, 0.18)
-	tween_herida.tween_callback(func() -> void: sprite.play("idle"))
+	tween_herida.tween_callback(_mostrar_reposo)
+
+
+func _mostrar_reposo() -> void:
+	sprite.play("idle")
+	sincronizar_reposo(sprite)
 
 
 func _draw() -> void:
