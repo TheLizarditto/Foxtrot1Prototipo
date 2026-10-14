@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" path="res://Scenes/puntos_accion.tscn" id="9_puntos_accion"]
 [ext_resource type="Texture2D" uid="uid://bttsm8032fd6c" path="res://Assets/fondo1_horizontal.png" id="10_fondo"]
 [ext_resource type="PackedScene" path="res://Scenes/enemigo.tscn" id="11_enemigo"]
+[ext_resource type="Script" path="res://Scripts/corazones.gd" id="12_corazones"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 
@@ -24,14 +25,26 @@ texture = ExtResource("10_fondo")
 [node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
 
 [node name="Camera2D" type="Camera2D" parent="Tablero" unique_id=496038153]
-position = Vector2(0, -48)
+position = Vector2(0, -60)
 zoom = Vector2(0.95, 0.95)
 
 [node name="Personaje" parent="." unique_id=466476145 instance=ExtResource("2_bo1nx")]
 scale = Vector2(2, 2)
 
 [node name="Enemigo" parent="." instance=ExtResource("11_enemigo")]
-position = Vector2(0, -192)
+position = Vector2(0, -232)
+
+[node name="VidaCaballero" type="Node2D" parent="."]
+position = Vector2(0, 184)
+z_index = -1
+script = ExtResource("12_corazones")
+ruta_combatiente = NodePath("../Personaje")
+
+[node name="VidaDragon" type="Node2D" parent="."]
+position = Vector2(0, -196)
+z_index = -1
+script = ExtResource("12_corazones")
+ruta_combatiente = NodePath("../Enemigo")
 
 [node name="Turno" parent="." unique_id=1889608141 instance=ExtResource("3_turno")]
 
@@ -49,4 +62,4 @@ position = Vector2(-208, 128)
 
 [node name="Mano" parent="." unique_id=1620002229 instance=ExtResource("8_mano")]
 z_index = 10
-position = Vector2(4, 244)
+position = Vector2(4, 274)

@@ -1,4 +1,4 @@
-extends Node2D
+extends "res://Scripts/combatiente.gd"
 
 const DIRECCIONES := [
 	Vector2i(0, 1), Vector2i(-1, 1), Vector2i(-1, 0), Vector2i(-1, -1),
@@ -6,6 +6,7 @@ const DIRECCIONES := [
 ]
 const NOMBRES_DIRECCION := ["abajo", "abajo_izquierda", "izquierda", "arriba_izquierda", "arriba", "arriba_derecha", "derecha", "abajo_derecha"]
 @export var ruta_tablero: NodePath = "../Tablero"
+@export var ruta_enemigo: NodePath = "../Enemigo"
 @export_range(0.1, 1.0, 0.01) var duracion_paso := 0.32
 @export_range(1.0, 30.0, 1.0) var velocidad_ataque := 10.0
 @export_range(1.0, 30.0, 1.0) var velocidad_defensa := 8.0
@@ -18,11 +19,14 @@ const NOMBRES_DIRECCION := ["abajo", "abajo_izquierda", "izquierda", "arriba_izq
 var posicion := Vector2.ZERO
 var direccion_actual := Vector2i(0, -1)
 var accion_en_curso := false
+var dano_pendiente := 0
 
 
 func _ready() -> void:
+	super._ready()
 	_preparar_animaciones()
 	sprite.frame_changed.connect(_ajustar_fotograma)
+	sprite.frame_changed.connect(_resolver_golpe)
 	sprite.animation_changed.connect(_ajustar_fotograma)
 	_actualizar_posicion_centro()
 	_mostrar_reposo()
@@ -60,8 +64,22 @@ func movimiento(direccion: Vector2i) -> bool:
 
 # Todas las acciones mantienen la vista de espaldas, sin girar el sprite.
 func atacar(valor := 1) -> void:
-	if valor > 0:
-		await _animar_accion("ataque")
+	if valor <= 0 or accion_en_curso:
+		return
+	dano_pendiente = valor
+	await _animar_accion("ataque")
+	dano_pendiente = 0
+
+
+func _resolver_golpe() -> void:
+	# El tercer fotograma corresponde al impacto, despues de levantar la espada.
+	if dano_pendiente <= 0 or not String(sprite.animation).begins_with("ataque_") or sprite.frame != 2:
+		return
+	var dano := dano_pendiente
+	dano_pendiente = 0
+	var enemigo := get_node_or_null(ruta_enemigo)
+	if enemigo != null and enemigo.has_method("recibir_dano"):
+		enemigo.recibir_dano(dano)
 
 
 func defender(valor := 1) -> void:
