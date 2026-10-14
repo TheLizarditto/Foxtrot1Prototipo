@@ -9,31 +9,29 @@
 [ext_resource type="PackedScene" path="res://Scenes/mano.tscn" id="8_mano"]
 [ext_resource type="PackedScene" path="res://Scenes/puntos_accion.tscn" id="9_puntos_accion"]
 [ext_resource type="Texture2D" uid="uid://bttsm8032fd6c" path="res://Assets/fondo1_horizontal.png" id="10_fondo"]
+[ext_resource type="PackedScene" path="res://Scenes/enemigo.tscn" id="11_enemigo"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 
-[node name="Fondo" type="CanvasLayer" parent="." unique_id=783863895]
-layer = -100
+[node name="Fondo" type="Node2D" parent="." unique_id=783863895]
+z_index = -100
+position = Vector2(0, -48)
 
-[node name="Imagen" type="TextureRect" parent="Fondo" unique_id=859595183]
+[node name="Imagen" type="Sprite2D" parent="Fondo" unique_id=859595183]
 texture_filter = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 texture = ExtResource("10_fondo")
-expand_mode = 1
-stretch_mode = 6
 
 [node name="Tablero" parent="." unique_id=980927273 instance=ExtResource("1_h0ha0")]
 
 [node name="Camera2D" type="Camera2D" parent="Tablero" unique_id=496038153]
+position = Vector2(0, -48)
 zoom = Vector2(0.95, 0.95)
 
 [node name="Personaje" parent="." unique_id=466476145 instance=ExtResource("2_bo1nx")]
 scale = Vector2(2, 2)
+
+[node name="Enemigo" parent="." instance=ExtResource("11_enemigo")]
+position = Vector2(0, -192)
 
 [node name="Turno" parent="." unique_id=1889608141 instance=ExtResource("3_turno")]
 

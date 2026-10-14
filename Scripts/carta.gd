@@ -103,23 +103,22 @@ func ejecutar(personaje: Node = null) -> void:
 
 	ejecutando = true
 	var movimientos_validos := _obtener_movimientos_validos()
-	var pasos_totales := 0
-
-	for movimiento in movimientos_validos:
-		pasos_totales += obtener_cantidad(movimiento)
-
-	var paso_actual := 0
+	var hubo_movimiento := false
 	for movimiento in movimientos_validos:
 		var direccion := obtener_direccion(movimiento)
 		var cantidad_pasos := obtener_cantidad(movimiento)
 
 		for _paso in range(cantidad_pasos):
+			# Descarta intentos bloqueados antes de esperar o reproducir efectos.
+			if personaje.has_method("puede_moverse") and not personaje.puede_moverse(direccion):
+				paso_resuelto.emit(false)
+				continue
+			# Solo hay pausa entre dos desplazamientos que se pueden realizar.
+			if hubo_movimiento and delay_entre_movimientos > 0.0:
+				await get_tree().create_timer(delay_entre_movimientos).timeout
 			var realizado: bool = await personaje.movimiento(direccion)
 			paso_resuelto.emit(realizado)
-			paso_actual += 1
-
-			if paso_actual < pasos_totales and delay_entre_movimientos > 0.0:
-				await get_tree().create_timer(delay_entre_movimientos).timeout
+			hubo_movimiento = hubo_movimiento or realizado
 
 	if ataque > 0 and personaje.has_method("atacar"):
 		await personaje.atacar(ataque)
