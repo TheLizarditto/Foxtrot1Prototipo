@@ -1,6 +1,8 @@
 extends Node2D
 class_name Carta
 
+signal paso_resuelto(realizado: bool)
+
 const TEXTURA_ATAQUE := preload("res://Assets/Carta/miniespada.png")
 const TEXTURA_DEFENSA := preload("res://Assets/Carta/miniescudo.png")
 const MAX_MOVIMIENTOS := 4
@@ -41,6 +43,7 @@ const TEXTURAS_MOVIMIENTO := {
 @export var movimientos: Array[Vector2i] = []
 @export var ataque := 0
 @export var defensa := 0
+@export var costo_pa := 1
 @export var ruta_personaje: NodePath = "../Personaje"
 @export var delay_entre_movimientos := 0.5
 
@@ -48,6 +51,7 @@ const TEXTURAS_MOVIMIENTO := {
 @onready var fondo: Sprite2D = $Fondo
 @onready var movimientos_contenedor: HBoxContainer = $Contenido/Movimientos
 @onready var atributos_contenedor: HBoxContainer = $Contenido/Atributos
+@onready var costo_pa_etiqueta: Label = $Contenido/CostoPA
 
 var ejecutando := false
 var boca_abajo := false
@@ -56,6 +60,7 @@ var boca_abajo := false
 func _ready() -> void:
 	ataque = maxi(ataque, 0)
 	defensa = maxi(defensa, 0)
+	costo_pa = maxi(costo_pa, 1)
 	delay_entre_movimientos = maxf(delay_entre_movimientos, 0.0)
 	_limitar_movimientos()
 
@@ -66,6 +71,7 @@ func _ready() -> void:
 
 	_mostrar_movimientos()
 	_mostrar_atributos()
+	costo_pa_etiqueta.text = str(costo_pa)
 	mostrar_frente()
 
 
@@ -83,7 +89,7 @@ func mostrar_atras() -> void:
 	atras.visible = true
 
 
-# Ejecuta los movimientos de la carta sobre el personaje indicado.
+# Ejecuta los movimientos, el ataque y la defensa en orden, esperando sus animaciones.
 func ejecutar(personaje: Node = null) -> void:
 	if ejecutando:
 		return
@@ -108,11 +114,17 @@ func ejecutar(personaje: Node = null) -> void:
 		var cantidad_pasos := obtener_cantidad(movimiento)
 
 		for _paso in range(cantidad_pasos):
-			personaje.movimiento(direccion)
+			var realizado: bool = await personaje.movimiento(direccion)
+			paso_resuelto.emit(realizado)
 			paso_actual += 1
 
 			if paso_actual < pasos_totales and delay_entre_movimientos > 0.0:
 				await get_tree().create_timer(delay_entre_movimientos).timeout
+
+	if ataque > 0 and personaje.has_method("atacar"):
+		await personaje.atacar(ataque)
+	if defensa > 0 and personaje.has_method("defender"):
+		await personaje.defender(defensa)
 
 	ejecutando = false
 
@@ -136,7 +148,8 @@ func _mostrar_movimientos() -> void:
 		_crear_indicador(
 			movimientos_contenedor,
 			_obtener_textura_movimiento(obtener_direccion(movimiento)),
-			obtener_cantidad(movimiento)
+			obtener_cantidad(movimiento),
+			8
 		)
 
 	movimientos_contenedor.visible = movimientos_contenedor.get_child_count() > 0
@@ -221,6 +234,7 @@ static func normalizar_datos(datos: Dictionary) -> Dictionary:
 		"movimientos": copiar_movimientos(datos.get("movimientos", [])),
 		"ataque": maxi(int(datos.get("ataque", 0)), 0),
 		"defensa": maxi(int(datos.get("defensa", 0)), 0),
+		"costo_pa": maxi(int(datos.get("costo_pa", 1)), 1),
 	}
 
 
@@ -247,10 +261,11 @@ static func aplicar_datos(carta: Node, datos: Dictionary) -> void:
 	carta.set("movimientos", datos_normalizados["movimientos"])
 	carta.set("ataque", datos_normalizados["ataque"])
 	carta.set("defensa", datos_normalizados["defensa"])
+	carta.set("costo_pa", datos_normalizados["costo_pa"])
 
 
 # Crea un indicador visual con icono y numero dentro del contenedor indicado.
-func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int) -> void:
+func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: int, tamano_fuente: int = TAMANO_FUENTE) -> void:
 	var indicador := HBoxContainer.new()
 	indicador.add_theme_constant_override("separation", 1)
 	indicador.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -267,7 +282,8 @@ func _crear_indicador(contenedor: HBoxContainer, textura: Texture2D, cantidad: i
 
 	var numero := Label.new()
 	numero.text = str(cantidad)
-	numero.add_theme_font_size_override("font_size", TAMANO_FUENTE)
+	numero.add_theme_font_size_override("font_size", tamano_fuente)
+	numero.add_theme_color_override("font_color", Color("eee1bb"))
 	numero.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	numero.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	indicador.add_child(numero)

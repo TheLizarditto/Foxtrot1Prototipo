@@ -2,6 +2,8 @@ extends Node2D
 class_name Mano
 
 signal accion_en_curso_cambiada(en_curso: bool)
+signal cola_cambiada
+signal paso_cola_resuelto(realizado: bool)
 
 const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 
@@ -15,19 +17,32 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 @export var duracion_llevar_a_mano := 0.34
 @export var desplazamiento_elevacion_relativo := Vector2(-0.15, -0.33)
 @export var inclinacion_inicial_grados := -7.0
-@export var escala_inicial_robo := Vector2(0.92, 0.92)
+@export var escala_inicial_robo := Vector2.ONE
 @export var escala_minima_giro := 0.05
 @export var color_carta_oculta := Color(0.62, 0.66, 0.78, 1.0)
 @export var desplazamiento_hover := Vector2(0.0, -72.0)
 @export var duracion_hover := 0.15
+@export var sprite_cola: Texture2D = preload("res://Assets/Carta/marco_cola.svg")
+@export var margen_cola := 4.0
+
+@export var duracion_reordenar := 0.2
 @export var ruta_mazo_descarte: NodePath = "../MazoDescarte"
+@export var ruta_puntos_accion: NodePath = "../PuntosAccion"
+
+@onready var contenedor_cola: TextureRect = $ColaCartas
 
 var mano: Array[Dictionary] = []
 var cartas_visuales: Array[Node2D] = []
+var cola: Array[Dictionary] = []
+var cartas_en_cola: Array[Node2D] = []
 var carta_en_hover: Node2D
 var tween_hover: Tween
 var mano_lista_para_seleccion := false
 var accion_en_curso := false
+
+
+func _ready() -> void:
+	contenedor_cola.texture = sprite_cola
 
 
 # Detecta la carta bajo el mouse y la muestra en una posicion legible.
@@ -78,13 +93,14 @@ func robar_carta_animada(mazo_robo: MazoRobo) -> bool:
 	if mazo_robo == null or esta_llena():
 		return false
 
+	var origen := mazo_robo.posicion_superior_global()
 	var datos_carta := mazo_robo.robar_carta()
 	if datos_carta.is_empty():
 		return false
 
 	mano_lista_para_seleccion = false
 	var carta_visual := _agregar_carta(datos_carta)
-	await _animar_carta_robada(carta_visual, mazo_robo.global_position)
+	await _animar_carta_robada(carta_visual, origen)
 	mano_lista_para_seleccion = esta_llena()
 	return true
 
@@ -138,23 +154,42 @@ func _agregar_carta(datos_carta: Dictionary) -> Node2D:
 	return carta_visual
 
 
-# Ejecuta la carta jugada y la anima hasta el mazo de descarte.
+# Reserva PA y agrega la carta al final de la cola, o la devuelve a la mano.
 func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
 	if not mano_lista_para_seleccion or accion_en_curso:
 		return
 
-	var carta_visual := carta_en_hover
-	if carta_visual == null or not is_instance_valid(carta_visual):
+	var puntos_accion := get_node_or_null(ruta_puntos_accion) as PuntosAccion
+	if puntos_accion == null:
 		return
 
-	if not _contiene_carta_seleccionada(carta_visual, posicion_local):
-		return
+	var carta_visual: Node2D
+	for indice in range(cartas_en_cola.size() - 1, -1, -1):
+		if _contiene_carta_seleccionada(cartas_en_cola[indice], posicion_local):
+			carta_visual = cartas_en_cola[indice]
+			var datos_carta: Dictionary = cola[indice]
+			cola.remove_at(indice)
+			cartas_en_cola.remove_at(indice)
+			mano.push_front(datos_carta)
+			cartas_visuales.push_front(carta_visual)
+			puntos_accion.devolver(carta_visual.costo_pa)
+			break
 
-	var indice := cartas_visuales.find(carta_visual)
-	var mazo_descarte := get_node_or_null(ruta_mazo_descarte) as MazoDescarte
-	if indice < 0 or mazo_descarte == null:
-		return
+	if carta_visual == null:
+		carta_visual = carta_en_hover
+		if carta_visual == null:
+			carta_visual = _obtener_carta_en_posicion(posicion_local)
+		if carta_visual == null or not _contiene_carta_seleccionada(carta_visual, posicion_local):
+			return
+		var indice := cartas_visuales.find(carta_visual)
+		if indice < 0 or not puntos_accion.gastar(carta_visual.costo_pa):
+			return
+		cola.append(mano[indice])
+		cartas_en_cola.append(carta_visual)
+		mano.remove_at(indice)
+		cartas_visuales.remove_at(indice)
 
+	cola_cambiada.emit()
 	mano_lista_para_seleccion = false
 	accion_en_curso = true
 	accion_en_curso_cambiada.emit(true)
@@ -162,12 +197,67 @@ func _usar_carta_en_posicion(posicion_local: Vector2) -> void:
 	if tween_hover != null and tween_hover.is_valid():
 		tween_hover.kill()
 	carta_en_hover = null
-
-	await carta_visual.ejecutar()
-	await _descartar_carta(carta_visual, mazo_descarte)
-	mano_lista_para_seleccion = not esta_vacia()
+	await _animar_reordenamiento()
+	mano_lista_para_seleccion = not esta_vacia() or not cartas_en_cola.is_empty()
 	accion_en_curso = false
 	accion_en_curso_cambiada.emit(false)
+
+
+# Resuelve la cola en orden y descarta cada carta con la animacion existente.
+func ejecutar_cola() -> void:
+	var mazo_descarte := get_node_or_null(ruta_mazo_descarte) as MazoDescarte
+	if mazo_descarte == null or accion_en_curso:
+		return
+	mano_lista_para_seleccion = false
+	accion_en_curso = true
+	accion_en_curso_cambiada.emit(true)
+	while not cartas_en_cola.is_empty():
+		var carta_visual := cartas_en_cola[0]
+		carta_visual.paso_resuelto.connect(_al_resolver_paso_cola)
+		await carta_visual.ejecutar()
+		carta_visual.paso_resuelto.disconnect(_al_resolver_paso_cola)
+		await _animar_carta_al_descarte(carta_visual, mazo_descarte)
+		mazo_descarte.recibir_carta(cola.pop_front())
+		cartas_en_cola.pop_front()
+		carta_visual.queue_free()
+		await _animar_reordenamiento()
+	cola_cambiada.emit()
+	accion_en_curso = false
+	accion_en_curso_cambiada.emit(false)
+
+
+func _al_resolver_paso_cola(realizado: bool) -> void:
+	paso_cola_resuelto.emit(realizado)
+
+
+# Anima el traslado entre la mano y la cola y acomoda las cartas restantes.
+func _animar_reordenamiento() -> void:
+	if cartas_visuales.is_empty() and cartas_en_cola.is_empty():
+		return
+	var tween := create_tween().set_parallel(true)
+	tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	for indice in range(cartas_visuales.size()):
+		var carta_visual := cartas_visuales[indice]
+		carta_visual.z_index = indice + 1
+		tween.tween_property(carta_visual, "position", _obtener_posicion_carta(indice, cartas_visuales.size()), duracion_reordenar)
+		tween.tween_property(carta_visual, "rotation", _obtener_rotacion_carta(indice, cartas_visuales.size()), duracion_reordenar)
+	for indice in range(cartas_en_cola.size()):
+		var carta_visual := cartas_en_cola[indice]
+		carta_visual.z_index = indice + 1
+		tween.tween_property(carta_visual, "position", _obtener_posicion_cola(indice), duracion_reordenar)
+		tween.tween_property(carta_visual, "rotation", 0.0, duracion_reordenar)
+	await tween.finished
+	_actualizar_disposicion_visual()
+
+
+func _obtener_posicion_cola(indice: int) -> Vector2:
+	var tamano_carta := Vector2(cartas_en_cola[indice].get("tamano_carta"))
+	var alto_disponible := maxf(contenedor_cola.size.y - margen_cola * 2.0 - tamano_carta.y, 0.0)
+	var separacion := minf(tamano_carta.y, alto_disponible / maxf(cartas_en_cola.size() - 1, 1.0))
+	return contenedor_cola.position + Vector2(
+		contenedor_cola.size.x / 2.0,
+		margen_cola + tamano_carta.y / 2.0 + indice * separacion
+	)
 
 
 # Quita una carta y reutiliza la animacion y el almacenamiento del descarte.
@@ -198,7 +288,7 @@ func descartar_cartas(indices: Array[int]) -> void:
 	accion_en_curso_cambiada.emit(true)
 	for carta_visual in elegidas:
 		await _descartar_carta(carta_visual, mazo_descarte)
-	mano_lista_para_seleccion = not esta_vacia()
+	mano_lista_para_seleccion = false
 	accion_en_curso = false
 	accion_en_curso_cambiada.emit(false)
 
@@ -215,7 +305,7 @@ func preparar_seleccion_descarte() -> void:
 # Reutiliza el recorrido curvo de robo para llevar la carta jugada al descarte.
 func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte) -> void:
 	var inicio := carta_visual.position
-	var destino := to_local(mazo_descarte.global_position)
+	var destino := to_local(mazo_descarte.posicion_entrada_global())
 	var control := (inicio + destino) / 2.0 + Vector2(0.0, -altura_animacion_robo)
 	carta_visual.z_index = 100
 
@@ -230,7 +320,7 @@ func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte
 	tween.parallel().tween_property(
 		carta_visual,
 		"scale",
-		escala_inicial_robo,
+		Vector2.ONE,
 		maxf(duracion_llevar_a_mano, 0.0)
 	)
 	tween.parallel().tween_property(
@@ -242,7 +332,7 @@ func _animar_carta_al_descarte(carta_visual: Node2D, mazo_descarte: MazoDescarte
 	tween.parallel().tween_property(
 		carta_visual,
 		"modulate:a",
-		0.0,
+		1.0,
 		maxf(duracion_llevar_a_mano, 0.0)
 	)
 	await tween.finished
@@ -254,7 +344,7 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	var indice := total - 1
 	var posicion_destino := _obtener_posicion_carta(indice, total)
 	var rotacion_destino := _obtener_rotacion_carta(indice, total)
-	var z_destino := total - indice
+	var z_destino := indice + 1
 	var posicion_inicial := to_local(origen_global)
 	var tamano_carta := Vector2(carta_visual.get("tamano_carta"))
 	var posicion_elevada := posicion_inicial + tamano_carta * desplazamiento_elevacion_relativo
@@ -265,7 +355,7 @@ func _animar_carta_robada(carta_visual: Node2D, origen_global: Vector2) -> void:
 	carta_visual.position = posicion_inicial
 	carta_visual.rotation = 0.0
 	carta_visual.scale = escala_inicial_robo
-	carta_visual.modulate = color_carta_oculta
+	carta_visual.modulate = Color.WHITE
 	carta_visual.z_index = total + 1
 
 	var tween := create_tween()
@@ -334,7 +424,7 @@ func _acomodar_cartas_existentes(carta_nueva: Node2D, duracion: float) -> void:
 
 	for indice in range(total):
 		var carta_visual := cartas_visuales[indice]
-		carta_visual.z_index = total - indice
+		carta_visual.z_index = indice + 1
 
 		if carta_visual == carta_nueva:
 			continue
@@ -379,8 +469,13 @@ func _mostrar_frente_carta(carta_visual: Carta, z_destino: int) -> void:
 # Sincroniza la transformacion de cada carta visual segun la cantidad actual.
 func _actualizar_disposicion_visual() -> void:
 	var total := cartas_visuales.size()
-	if total == 0:
-		return
+	for indice in range(cartas_en_cola.size()):
+		var carta_visual := cartas_en_cola[indice]
+		carta_visual.position = _obtener_posicion_cola(indice)
+		carta_visual.rotation = 0.0
+		carta_visual.scale = Vector2.ONE
+		carta_visual.modulate = Color.WHITE
+		carta_visual.z_index = indice + 1
 
 	for indice in range(total):
 		var carta_visual := cartas_visuales[indice]
@@ -388,7 +483,7 @@ func _actualizar_disposicion_visual() -> void:
 		carta_visual.rotation = _obtener_rotacion_carta(indice, total)
 		carta_visual.scale = Vector2.ONE
 		carta_visual.modulate = Color.WHITE
-		carta_visual.z_index = total - indice
+		carta_visual.z_index = indice + 1
 
 
 # Detecta el mouse sobre la carta mas al frente y la despliega.
@@ -418,7 +513,7 @@ func _actualizar_hover() -> void:
 		if carta_visual == carta_en_hover:
 			continue
 
-		carta_visual.z_index = total - indice
+		carta_visual.z_index = indice + 1
 		tween.tween_property(
 			carta_visual,
 			"position",

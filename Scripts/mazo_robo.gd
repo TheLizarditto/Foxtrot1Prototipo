@@ -12,7 +12,7 @@ const ESCENA_CARTA := preload("res://Scenes/carta.tscn")
 @export var min_duracion_aparicion_carta := 0.03
 @export var max_espera_carta_visible := 0.12
 @export var min_espera_carta_visible := 0.01
-@export var escala_carta_al_entrar := Vector2(0.35, 0.35)
+@export var escala_carta_al_entrar := Vector2.ONE
 
 @onready var contador_cartas: Label = $ContadorCartas
 
@@ -66,7 +66,14 @@ func recargar_desde_descarte(mazo_descarte: MazoDescarte) -> bool:
 		return false
 
 	mazo_descarte.mezclar()
-	await cargar_cartas_animadas(mazo_descarte.entregar_cartas(), mazo_descarte.global_position)
+	var factor := _obtener_factor_aceleracion_animacion(mazo_descarte.cantidad())
+	while not mazo_descarte.esta_vacio():
+		var origen := mazo_descarte.posicion_superior_global()
+		var datos := mazo_descarte.extraer_carta()
+		var carta := _crear_carta_visual_animacion(datos, origen)
+		await _animar_carta_entrando(carta, factor)
+		insertar_carta(datos)
+		carta.queue_free()
 
 	return not esta_vacio()
 
@@ -110,6 +117,7 @@ func _actualizar_contador() -> void:
 		return
 
 	contador_cartas.text = str(cantidad())
+	$Pila.actualizar(cantidad())
 
 
 # Instancia la carta temporal para la animacion de entrada al mazo.
@@ -146,9 +154,9 @@ func _animar_carta_entrando(carta: Node2D, factor_aceleracion: float) -> void:
 	tween.set_parallel(true)
 	tween.set_trans(Tween.TRANS_CUBIC)
 	tween.set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(carta, "global_position", global_position, duracion_entrada)
+	tween.tween_property(carta, "global_position", posicion_entrada_global(), duracion_entrada)
 	tween.tween_property(carta, "scale", escala_carta_al_entrar, duracion_entrada)
-	tween.tween_property(carta, "modulate:a", 0.0, duracion_entrada)
+	tween.tween_property(carta, "modulate:a", 1.0, duracion_entrada)
 
 	await tween.finished
 
@@ -192,3 +200,12 @@ func _obtener_duracion_entrada(factor_aceleracion: float) -> float:
 # Interpola un valor entre lento y rapido segun el factor de aceleracion.
 func _interpolar_por_aceleracion(valor_lento: float, valor_rapido: float, factor_aceleracion: float) -> float:
 	return lerpf(valor_lento, valor_rapido, factor_aceleracion)
+
+
+# Posiciones de la carta superior y de la proxima carta que aterriza.
+func posicion_superior_global() -> Vector2:
+	return $Pila.posicion_superior_global()
+
+
+func posicion_entrada_global() -> Vector2:
+	return $Pila.posicion_entrada_global()
