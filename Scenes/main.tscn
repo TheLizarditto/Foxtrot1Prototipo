@@ -11,8 +11,12 @@
 [ext_resource type="Texture2D" uid="uid://bttsm8032fd6c" path="res://Assets/fondo1_horizontal.png" id="10_fondo"]
 [ext_resource type="PackedScene" path="res://Scenes/enemigo.tscn" id="11_enemigo"]
 [ext_resource type="Script" path="res://Scripts/corazones.gd" id="12_corazones"]
+[ext_resource type="Script" path="res://Scripts/ritmo_idle.gd" id="13_ritmo_idle"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
+
+[node name="RitmoIdle" type="Node" parent="."]
+script = ExtResource("13_ritmo_idle")
 
 [node name="Fondo" type="Node2D" parent="." unique_id=783863895]
 z_index = -100

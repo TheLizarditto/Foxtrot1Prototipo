@@ -110,7 +110,8 @@ func _preparar_animaciones() -> void:
 			sprite.sprite_frames.set_frame(nombre_defensa, indice, sprite.sprite_frames.get_frame_texture(nombre_defensa, indice), duracion_sostener_defensa * velocidad_defensa / 2.0)
 
 
-# El reposo usa el PNG original; las poses del atlas mantienen su escala y apoyo.
+# El idle conserva el arte original y alterna dos poses de respiracion.
+# La segunda baja el torso dos pixeles de origen, manteniendo las botas apoyadas.
 func _ajustar_fotograma() -> void:
 	if String(sprite.animation).begins_with("defensa_") and sprite.frame == 1:
 		brillo_defensa.reproducir(duracion_sostener_defensa)
@@ -123,6 +124,10 @@ func _ajustar_fotograma() -> void:
 	else:
 		sprite.scale = Vector2(0.52, 0.52)
 		sprite.offset = Vector2.ZERO
+		if String(sprite.animation).begins_with("reposo_") and sprite.frame == 1:
+			var respiracion := 73.0 / 75.0
+			sprite.scale.y *= respiracion
+			sprite.offset.y = 39.0 * (1.0 / respiracion - 1.0)
 
 
 func _nombre_animacion(accion: String) -> StringName:
@@ -132,6 +137,7 @@ func _nombre_animacion(accion: String) -> StringName:
 func _mostrar_reposo() -> void:
 	brillo_defensa.ocultar()
 	sprite.play(_nombre_animacion("reposo"))
+	sincronizar_reposo(sprite)
 
 
 func _actualizar_posicion_centro() -> void:

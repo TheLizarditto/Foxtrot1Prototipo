@@ -17,6 +17,12 @@ func _ready() -> void:
 	puntos_vida = vida_maxima
 
 
+func sincronizar_reposo(sprite: AnimatedSprite2D) -> void:
+	var ritmo := get_node_or_null("../RitmoIdle")
+	if ritmo != null:
+		ritmo.registrar(sprite)
+
+
 # Devuelve el dano efectivo y limita la vida a cero, sin aceptar dano negativo.
 func recibir_dano(cantidad: int) -> int:
 	var anterior := puntos_vida
