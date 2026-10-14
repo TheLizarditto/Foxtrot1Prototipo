@@ -28,16 +28,23 @@ func _ready() -> void:
 	_mostrar_reposo()
 
 
-# Camina hasta la celda vecina y espera a que termine el desplazamiento.
-func movimiento(direccion: Vector2i) -> bool:
+# Consulta el destino sin iniciar animaciones ni cambiar la posicion.
+func puede_moverse(direccion: Vector2i) -> bool:
 	if accion_en_curso:
 		return false
 	var paso := Vector2i(signi(direccion.x), signi(direccion.y))
 	if paso == Vector2i.ZERO:
 		return false
 	var destino := Vector2i(posicion) + paso
-	if not tablero.es_posicion_valida(destino.x, destino.y):
+	return tablero.es_posicion_valida(destino.x, destino.y)
+
+
+# Camina hasta la celda vecina y espera a que termine el desplazamiento.
+func movimiento(direccion: Vector2i) -> bool:
+	if not puede_moverse(direccion):
 		return false
+	var paso := Vector2i(signi(direccion.x), signi(direccion.y))
+	var destino := Vector2i(posicion) + paso
 
 	accion_en_curso = true
 	direccion_actual = paso
