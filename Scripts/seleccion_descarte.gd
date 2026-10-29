@@ -56,11 +56,14 @@ func _ready() -> void:
 	contenido.add_child(boton_confirmar)
 	var texto := Label.new()
 	texto.text = "Confirmar descartes"
+	texto.add_theme_font_size_override("font_size", 12)
+	boton_confirmar.add_child(texto)
 	texto.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	texto.offset_left = 48
+	texto.offset_right = -12
 	texto.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	texto.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	texto.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	boton_confirmar.add_child(texto)
 	get_viewport().size_changed.connect(_ajustar_columnas)
 	panel.hide()
 
