@@ -68,6 +68,7 @@ func _al_presionar_boton_turno() -> void:
 	await ataques_dragon.ejecutar_ataque()
 	if _terminar_si_no_hay_vida():
 		return
+	_limpiar_escudos()
 	await _rellenar_mano_para_siguiente_turno()
 	avanzar_turno()
 	pasando_turno = false
@@ -86,8 +87,15 @@ func _terminar_si_no_hay_vida() -> bool:
 	pasando_turno = false
 	mano.mano_lista_para_seleccion = false
 	ataques_dragon.limpiar()
+	_limpiar_escudos()
 	_bloquear_boton_turno(true)
 	return true
+
+
+# El escudo sobrante no pasa al turno siguiente.
+func _limpiar_escudos() -> void:
+	ataques_dragon.caballero.limpiar_escudo()
+	ataques_dragon.dragon.limpiar_escudo()
 
 
 # Roba solo las cartas necesarias; si el mazo se vacia, lo recarga desde el descarte.

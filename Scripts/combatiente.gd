@@ -1,6 +1,7 @@
 extends Node2D
 
 signal vida_cambiada(actual: int, maxima: int)
+signal escudo_cambiado(actual: int)
 
 @export var vida_maxima := 10:
 	set(valor):
@@ -11,6 +12,11 @@ var puntos_vida := 10:
 	set(valor):
 		puntos_vida = clampi(valor, 0, vida_maxima)
 		vida_cambiada.emit(puntos_vida, vida_maxima)
+
+var escudo := 0:
+	set(valor):
+		escudo = maxi(valor, 0)
+		escudo_cambiado.emit(escudo)
 
 
 func _ready() -> void:
@@ -23,8 +29,22 @@ func sincronizar_reposo(sprite: AnimatedSprite2D) -> void:
 		ritmo.registrar(sprite)
 
 
-# Devuelve el dano efectivo y limita la vida a cero, sin aceptar dano negativo.
+# El escudo absorbe primero; devuelve solo la vida perdida, sin aceptar dano negativo.
 func recibir_dano(cantidad: int) -> int:
+	var restante := maxi(cantidad, 0)
+	var absorbido := mini(escudo, restante)
+	if absorbido > 0:
+		escudo -= absorbido
 	var anterior := puntos_vida
-	puntos_vida -= maxi(cantidad, 0)
+	puntos_vida -= restante - absorbido
 	return anterior - puntos_vida
+
+
+func agregar_escudo(cantidad: int) -> void:
+	if cantidad > 0:
+		escudo += cantidad
+
+
+func limpiar_escudo() -> void:
+	if escudo > 0:
+		escudo = 0

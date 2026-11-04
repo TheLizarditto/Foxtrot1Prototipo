@@ -48,9 +48,12 @@ Estos valores se pueden ajustar desde las propiedades exportadas de los scripts 
 | Movimientos por carta | Entre 2 y 4 | `Scripts/baraja.gd` |
 | Pasos por movimiento | Entre 1 y 2 | `Scripts/baraja.gd` |
 | Ataque y defensa | Entre 0 y 3 cada uno | `Scripts/baraja.gd` |
+| Escudo del dragón | 40 % de probabilidad por turno, entre 2 y 4 puntos | `Scripts/ataques_dragon.gd` |
 | Pausa con el escudo levantado | 0,65 segundos, con destello sobre el escudo | `Scripts/personaje.gd` |
 | Duración de cada paso animado | 0,32 segundos | `Scripts/personaje.gd` |
 | Pausa entre pasos de una carta | 0,5 segundos | `Scripts/carta.gd` |
+
+El escudo absorbe el daño antes que la vida y el sobrante se borra al final de cada turno. El dragón lo levanta al preparar su ataque y las cartas con defensa lo suman al resolverse, antes del ataque enemigo. Los indicadores junto al tablero muestran, de arriba hacia abajo, el escudo y el daño entrante; cuando la cola los modifica aparecen como `actual > final`.
 
 Cada movimiento se guarda como un `Vector2i`: su dirección indica hacia dónde avanzar y su magnitud indica la cantidad de pasos. Las cartas muestran flechas y cantidades; los movimientos consecutivos en la misma dirección se agrupan visualmente.
 
@@ -74,5 +77,8 @@ Las animaciones del caballero se editan en `Assets/Personaje/caballero_animacion
 | `Scripts/seleccion_descarte.gd` | Interfaz para seleccionar y confirmar descartes. |
 | `Scripts/puntos_accion.gd` | Disponibilidad, gasto, recarga y contador de PA. |
 | `Scripts/tablero.gd` | Generación de casillas y validación de posiciones. |
+| `Scripts/combatiente.gd` | Vida y escudo compartidos por el caballero y el dragón. |
+| `Scripts/prevision_combate.gd` | Cálculo del escudo final y del daño entrante según la cola de cartas. |
+| `Scripts/indicador_combate.gd` | Panel que muestra el escudo y el daño entrante de cada combatiente. |
 | `Scripts/personaje.gd` | Posición del personaje, caminata en ocho direcciones y animaciones de ataque y defensa. |
 | `Assets/` | Recursos gráficos de cartas, tablero, personaje, turnos y PA. |
