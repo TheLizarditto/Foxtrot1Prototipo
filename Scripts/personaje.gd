@@ -83,7 +83,8 @@ func _resolver_golpe() -> void:
 
 
 func defender(valor := 1) -> void:
-	if valor > 0:
+	if valor > 0 and not accion_en_curso:
+		agregar_escudo(valor)
 		await _animar_accion("defensa")
 
 

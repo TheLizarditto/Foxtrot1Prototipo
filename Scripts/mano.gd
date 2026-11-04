@@ -39,6 +39,7 @@ var carta_en_hover: Node2D
 var tween_hover: Tween
 var mano_lista_para_seleccion := false
 var accion_en_curso := false
+var resolviendo_cola := false
 
 
 func _ready() -> void:
@@ -210,6 +211,7 @@ func ejecutar_cola() -> void:
 		return
 	mano_lista_para_seleccion = false
 	accion_en_curso = true
+	resolviendo_cola = true
 	accion_en_curso_cambiada.emit(true)
 	while not cartas_en_cola.is_empty():
 		var carta_visual := cartas_en_cola[0]
@@ -221,6 +223,7 @@ func ejecutar_cola() -> void:
 		cartas_en_cola.pop_front()
 		carta_visual.queue_free()
 		await _animar_reordenamiento()
+	resolviendo_cola = false
 	cola_cambiada.emit()
 	accion_en_curso = false
 	accion_en_curso_cambiada.emit(false)

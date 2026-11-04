@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://Scripts/corazones.gd" id="12_corazones"]
 [ext_resource type="Script" path="res://Scripts/ritmo_idle.gd" id="13_ritmo_idle"]
 [ext_resource type="Script" path="res://Scripts/ataques_dragon.gd" id="14_ataques"]
+[ext_resource type="Script" path="res://Scripts/indicador_combate.gd" id="15_indicador"]
+[ext_resource type="Script" path="res://Scripts/prevision_combate.gd" id="16_prevision"]
 
 [node name="Main" type="Node2D" unique_id=1545272933]
 
@@ -71,3 +73,16 @@ position = Vector2(-208, 128)
 [node name="Mano" parent="." unique_id=1620002229 instance=ExtResource("8_mano")]
 z_index = 10
 position = Vector2(4, 274)
+
+[node name="IndicadorCaballero" type="Node2D" parent="."]
+z_index = 6
+position = Vector2(168, 36)
+script = ExtResource("15_indicador")
+
+[node name="IndicadorDragon" type="Node2D" parent="."]
+z_index = 6
+position = Vector2(168, -220)
+script = ExtResource("15_indicador")
+
+[node name="PrevisionCombate" type="Node" parent="."]
+script = ExtResource("16_prevision")

@@ -1,9 +1,12 @@
 extends Node
 
 signal ataque_resuelto(tipo: int, dano_realizado: int)
+signal ataque_cambiado
 
 enum Tipo { BOLA_FUEGO, GARRAS, MORDIDA }
 const DANOS := [Vector2i(3, 5), Vector2i(5, 7), Vector2i(8, 10)]
+const ESCUDO := Vector2i(2, 4)
+const PROBABILIDAD_ESCUDO := 0.4
 const MARCAS := preload("res://Scripts/marcas_ataque.gd")
 const EFECTOS := preload("res://Scripts/efectos_dragon.gd")
 
@@ -52,6 +55,10 @@ func preparar_siguiente() -> void:
 		"celdas": elegir_zona(tipo, Vector2i(caballero.posicion)),
 	}
 	marcas.mostrar(ataque_actual["celdas"])
+	# El sobrante se borra al final del turno: debe levantarse antes de las cartas del jugador.
+	if azar.randf() < PROBABILIDAD_ESCUDO:
+		dragon.escudo = azar.randi_range(ESCUDO.x, ESCUDO.y)
+	ataque_cambiado.emit()
 
 
 func _rellenar_cola() -> void:
@@ -128,3 +135,11 @@ func _aplicar_impacto() -> void:
 func limpiar() -> void:
 	ataque_actual.clear()
 	marcas.limpiar()
+	ataque_cambiado.emit()
+
+
+# Dano que recibiria un personaje parado en esa celda, antes de aplicar su escudo.
+func obtener_dano_en(celda: Vector2i) -> int:
+	if ataque_actual.is_empty() or not ataque_actual["celdas"].has(celda):
+		return 0
+	return ataque_actual["dano"]
